@@ -1,0 +1,670 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_path.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:31:13 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 15:34:56 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+static int find_player_pos(t_map *map_data, int *p_x, int *p_y)
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (i < map_data->height)
+	{
+		j = 0;
+		while (j < map_data->width)
+		{
+			if (map_data->map_array[i][j] == 'P')
+			{
+				*p_x = i;
+				*p_y = j;
+				return (1);
+			}
+			j++;
+		}
+		i++;
+	}
+	return (ft_printf("Error\nNo player found.\n"), 0);
+}
+
+static char **duplicate_map(char **map_array, int height)
+{
+	char **copy;
+	int i;
+
+	copy = malloc(sizeof(char *) * (height + 1));
+	if (!copy)
+		return (NULL);
+	i = 0;
+	while (i < height)
+	{
+		copy[i] = ft_strdup(map_array[i]);
+		if (!copy[i])
+			return (free_map(copy), NULL);
+		i++;
+	}
+	copy[i] = NULL;
+	return (copy);
+}
+
+static int verify_reachable(char **map_copy, t_map *map_data)
+{
+	int i;
+	int j;
+
+	i = 0;
+	while (i < map_data->height)
+	{
+		j = 0;
+		while (j < map_data->width)
+		{
+			if (map_data->map_array[i][j] == 'C' || map_data->map_array[i][j] == 'E')
+				if (map_copy[i][j] != 'X')
+					return (ft_printf("Error\nUnreachable C or E.\n"), 0);
+			j++;
+		}
+		i++;
+	}
+	return (1);
+}
+
+static void flood_fill(char **map_copy, int x, int y, t_map *map_data)
+{
+	if (x < 0 || y < 0 || x >= map_data->height || y >= map_data->width)
+		return;
+	if (map_copy[x][y] == '1' || map_copy[x][y] == 'X')
+		return;
+	map_copy[x][y] = 'X'; /* Mark as visited */
+	flood_fill(map_copy, x + 1, y, map_data);
+	flood_fill(map_copy, x - 1, y, map_data);
+	flood_fill(map_copy, x, y + 1, map_data);
+	flood_fill(map_copy, x, y - 1, map_data);
+}
+
+/*
+** check_path:
+**  - Finds player start.
+**  - Creates a copy of the map.
+**  - Flood fills from player position.
+**  - Checks if we can reach all 'C' and 'E'.
+*/
+int check_path(t_map *map_data)
+{
+	char **map_copy;
+	int p_x;
+	int p_y;
+
+	if (!find_player_pos(map_data, &p_x, &p_y))
+		return (0);
+	map_copy = duplicate_map(map_data->map_array, map_data->height);
+	if (!map_copy)
+		return (ft_printf("Error\nMap copy failed.\n"), 0);
+	flood_fill(map_copy, p_x, p_y, map_data);
+	if (!verify_reachable(map_copy, map_data))
+		return (free_map(map_copy), 0);
+	free_map(map_copy);
+	return (1);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exit_game.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:58:09 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 15:58:16 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/*
+** close_game:
+**  - Destroys images
+**  - Destroys window
+**  - Frees map
+**  - Exits program
+*/
+int close_game(t_map *map_data)
+{
+	if (map_data->tex_wall)
+		mlx_destroy_image(map_data->mlx, map_data->tex_wall);
+	if (map_data->tex_floor)
+		mlx_destroy_image(map_data->mlx, map_data->tex_floor);
+	if (map_data->tex_player)
+		mlx_destroy_image(map_data->mlx, map_data->tex_player);
+	/* etc. for each texture... */
+
+	if (map_data->win)
+		mlx_destroy_window(map_data->mlx, map_data->win);
+
+	free_map(map_data->map_array);
+	exit(0);
+	return (0);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_mlx.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:53:30 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 15:53:35 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/*
+** init_window:
+**  - Initializes MLX.
+**  - Creates the window.
+**  - Calls load_textures.
+**  - Returns 1 on success, 0 on failure.
+*/
+int init_window(t_map *map_data)
+{
+	map_data->mlx = mlx_init();
+	if (!map_data->mlx)
+	{
+		ft_printf("Error\nMLX init failed.\n");
+		return (0);
+	}
+	map_data->win = mlx_new_window(map_data->mlx,
+								   map_data->width * TILE_SIZE,
+								   map_data->height * TILE_SIZE,
+								   "So Long");
+	if (!map_data->win)
+	{
+		ft_printf("Error\nWindow creation failed.\n");
+		return (0);
+	}
+	if (!load_textures(map_data))
+		return (0);
+	return (1);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   load_textures.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:54:53 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 15:54:57 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/*
+** load_textures:
+**  - Loads each tile's image (wall, floor, player, etc.).
+**  - Returns 1 on success, 0 on failure.
+*/
+int load_textures(t_map *map_data)
+{
+	int w;
+	int h;
+
+	map_data->tex_wall = mlx_xpm_file_to_image(map_data->mlx, "textures/wall.xpm", &w, &h);
+	if (!map_data->tex_wall)
+		return (ft_printf("Error\nFailed to load wall.xpm\n"), 0);
+	map_data->tex_floor = mlx_xpm_file_to_image(map_data->mlx, "textures/floor.xpm", &w, &h);
+	if (!map_data->tex_floor)
+		return (ft_printf("Error\nFailed to load floor.xpm\n"), 0);
+	/* Repeat for player, exit, collectible, monster... */
+	map_data->tex_player = mlx_xpm_file_to_image(map_data->mlx, "textures/player.xpm", &w, &h);
+	if (!map_data->tex_player)
+		return (ft_printf("Error\nFailed to load player.xpm\n"), 0);
+	map_data->tex_exit = mlx_xpm_file_to_image(map_data->mlx, "textures/exit.xpm", &w, &h);
+	/* etc. */
+
+	return (1);
+}
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map_parsing.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 12:41:28 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 16:37:20 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/* Function prototype for copy_old_map */
+static void copy_old_map(char **old_map, char **new_map, int count);
+
+/*
+** read_map_file:
+**  - Opens the file.
+**  - Reads each line with get_next_line.
+**  - Stores them in a newly allocated char**.
+*/
+char **read_map_file(char *filename)
+{
+    int fd;
+    char *line;
+    char **map;
+    char **temp;
+    int count;
+
+    fd = open(filename, O_RDONLY);
+    if (fd < 0)
+    {
+        ft_printf("Error\nFailed to open file.\n");
+        return (NULL);
+    }
+    map = NULL;
+    count = 0;
+    line = get_next_line(fd);
+    while (line)
+    {
+        temp = map;
+        map = malloc(sizeof(char *) * (count + 2));
+        if (!map)
+            return (free_map(temp), close(fd), ft_printf("Error\nMalloc.\n"), NULL);
+        copy_old_map(temp, map, count); /* see helper below */
+        map[count] = line;
+        map[count + 1] = NULL;
+        count++;
+        line = get_next_line(fd);
+        free(temp);
+    }
+    close(fd);
+    return (map);
+}
+
+/*
+** copy_old_map:
+**  - Copies previous pointers from old `map` to new `map`.
+**  - Then frees the old pointer array (not the lines themselves).
+*/
+static void copy_old_map(char **old_map, char **new_map, int count)
+{
+    int i;
+
+    i = 0;
+    while (i < count)
+    {
+        new_map[i] = old_map[i];
+        i++;
+    }
+}
+
+/*
+** free_map:
+**  - Frees each line in the array, then frees the array itself.
+*/
+void free_map(char **map_array)
+{
+    int i;
+
+    if (!map_array)
+        return;
+    i = 0;
+    while (map_array[i])
+    {
+        free(map_array[i]);
+        i++;
+    }
+    free(map_array);
+}/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   map_validation.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:28:27 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 16:38:28 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/* Function prototype for fill_map_dimensions */
+static int fill_map_dimensions(t_map *map_data);
+
+/*
+** check_map_validity:
+**  - Populates width, height in t_map.
+**  - Runs multiple checks (rectangular, walls, required chars).
+**  - Calls path check (DFS/BFS) to ensure all collectables & exit are reachable.
+*/
+int check_map_validity(t_map *map_data)
+{
+    if (!map_data->map_array)
+        return (ft_printf("Error\nInvalid map array.\n"), 0);
+    if (!fill_map_dimensions(map_data))
+        return (0);
+    if (!check_rectangle(map_data))
+        return (0);
+    if (!check_walls(map_data))
+        return (0);
+    if (!check_chars_count(map_data))
+        return (0);
+    if (!check_path(map_data))
+        return (0);
+    return (1);
+}
+
+/*
+** fill_map_dimensions:
+**  - Figures out map_data->width and map_data->height
+**  - Also initializes counts for player, exit, collect to 0
+*/
+static int fill_map_dimensions(t_map *map_data)
+{
+    int i;
+
+    i = 0;
+    while (map_data->map_array && map_data->map_array[i])
+        i++;
+    map_data->height = i;
+    if (map_data->height == 0)
+        return (ft_printf("Error\nEmpty map.\n"), 0);
+    map_data->width = (int)ft_strlen(map_data->map_array[0]);
+    map_data->player_count = 0;
+    map_data->exit_count = 0;
+    map_data->collect_count = 0;
+    return (1);
+}
+
+int check_rectangle(t_map *map_data)
+{
+    int i;
+    int first_width;
+
+    i = 0;
+    first_width = map_data->width;
+    while (map_data->map_array[i])
+    {
+        if ((int)ft_strlen(map_data->map_array[i]) != first_width)
+            return (ft_printf("Error\nMap is not rectangular.\n"), 0);
+        i++;
+    }
+    return (1);
+}
+
+int check_walls(t_map *map_data)
+{
+    int i;
+    int last_row;
+
+    i = 0;
+    last_row = map_data->height - 1;
+    while (map_data->map_array[0][i])
+    {
+        if (map_data->map_array[0][i] != '1' || map_data->map_array[last_row][i] != '1')
+            return (ft_printf("Error\nTop or bottom wall missing.\n"), 0);
+        i++;
+    }
+    i = 0;
+    while (i < map_data->height)
+    {
+        if (map_data->map_array[i][0] != '1' || map_data->map_array[i][map_data->width - 1] != '1')
+            return (ft_printf("Error\nSide wall missing.\n"), 0);
+        i++;
+    }
+    return (1);
+}
+
+int check_chars_count(t_map *map_data)
+{
+    int i;
+    int j;
+    char c;
+
+    i = 0;
+    while (i < map_data->height)
+    {
+        j = 0;
+        while (j < map_data->width)
+        {
+            c = map_data->map_array[i][j];
+            if (c == 'P')
+                map_data->player_count++;
+            else if (c == 'E')
+                map_data->exit_count++;
+            else if (c == 'C')
+                map_data->collect_count++;
+            else if (c != '0' && c != '1' && c != 'M')
+                return (ft_printf("Error\nInvalid char in map.\n"), 0);
+            j++;
+        }
+        i++;
+    }
+    if (map_data->player_count != 1 || map_data->exit_count == 0 || map_data->collect_count == 0)
+        return (ft_printf("Error\nMissing P/E/C.\n"), 0);
+    return (1);
+}/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   player_movement.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:57:31 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 15:57:36 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/* Adjust keycodes for your system or define them in your so_long.h */
+#define KEY_W 119
+#define KEY_S 115
+#define KEY_A 97
+#define KEY_D 100
+#define KEY_ESC 65307
+
+int handle_keypress(int keycode, t_map *map_data)
+{
+	if (keycode == KEY_ESC)
+		close_game(map_data);
+	else if (keycode == KEY_W)
+		move_player(map_data, -1, 0);
+	else if (keycode == KEY_S)
+		move_player(map_data, 1, 0);
+	else if (keycode == KEY_A)
+		move_player(map_data, 0, -1);
+	else if (keycode == KEY_D)
+		move_player(map_data, 0, 1);
+	return (0);
+}
+
+/*
+** move_player:
+**  - Checks if next cell is wall => ignore
+**  - If collectible => increment collected, set cell to '0'
+**  - If exit => check if all collects are done => win => close_game
+**  - Otherwise, update map with new player position
+*/
+void move_player(t_map *map_data, int dx, int dy)
+{
+	int new_x;
+	int new_y;
+	char next_cell;
+
+	new_x = map_data->player_x + dx;
+	new_y = map_data->player_y + dy;
+	next_cell = map_data->map_array[new_x][new_y];
+	if (next_cell == '1')
+		return; /* blocked by wall */
+
+	if (next_cell == 'C')
+	{
+		map_data->collect_count--;
+		map_data->map_array[new_x][new_y] = '0';
+	}
+	else if (next_cell == 'E')
+	{
+		if (map_data->collect_count == 0)
+		{
+			ft_printf("You collected all items! You win!\n");
+			close_game(map_data);
+		}
+		return;
+	}
+
+	/* Update map: remove old 'P', place new 'P' */
+	map_data->map_array[map_data->player_x][map_data->player_y] = '0';
+	map_data->map_array[new_x][new_y] = 'P';
+	map_data->player_x = new_x;
+	map_data->player_y = new_y;
+
+	map_data->moves++;
+	ft_printf("Moves: %d\n", map_data->moves);
+
+	/* Re-render the map to show changes */
+	render_map(map_data);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   render_map.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:56:44 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 16:40:50 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+/* Function prototypes */
+static void put_tile(t_map *map_data, int i, int j);
+static void put_player(t_map *map_data, int i, int j);
+
+/*
+** render_map:
+**  - Iterates over map_array
+**  - Chooses the right texture for each cell
+**  - Places it in the window
+*/
+int render_map(t_map *map_data)
+{
+    int i;
+    int j;
+
+    i = 0;
+    while (i < map_data->height)
+    {
+        j = 0;
+        while (j < map_data->width)
+        {
+            put_tile(map_data, i, j);
+            j++;
+        }
+        i++;
+    }
+    return (1);
+}
+
+/*
+** put_tile:
+**  - Takes row/column, checks map_data->map_array[i][j]
+**  - Puts the appropriate texture.
+*/
+static void put_tile(t_map *map_data, int i, int j)
+{
+    if (map_data->map_array[i][j] == '1')
+        mlx_put_image_to_window(map_data->mlx, map_data->win,
+                                map_data->tex_wall, j * TILE_SIZE, i * TILE_SIZE);
+    else if (map_data->map_array[i][j] == '0')
+        mlx_put_image_to_window(map_data->mlx, map_data->win,
+                                map_data->tex_floor, j * TILE_SIZE, i * TILE_SIZE);
+    else if (map_data->map_array[i][j] == 'C')
+        mlx_put_image_to_window(map_data->mlx, map_data->win,
+                                map_data->tex_collect, j * TILE_SIZE, i * TILE_SIZE);
+    else if (map_data->map_array[i][j] == 'E')
+        mlx_put_image_to_window(map_data->mlx, map_data->win,
+                                map_data->tex_exit, j * TILE_SIZE, i * TILE_SIZE);
+    else if (map_data->map_array[i][j] == 'M')
+        mlx_put_image_to_window(map_data->mlx, map_data->win,
+                                map_data->tex_monster, j * TILE_SIZE, i * TILE_SIZE);
+    else if (map_data->map_array[i][j] == 'P')
+        put_player(map_data, i, j);
+}
+
+/*
+** put_player:
+**  - This is where you can handle animation frames for the player.
+**  - For now, just place the primary player texture.
+*/
+static void put_player(t_map *map_data, int i, int j)
+{
+    mlx_put_image_to_window(map_data->mlx, map_data->win,
+                            map_data->tex_player, j * TILE_SIZE, i * TILE_SIZE);
+    map_data->player_x = i;
+    map_data->player_y = j;
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/04 15:35:33 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/04 15:56:12 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "so_long.h"
+
+int main(int argc, char **argv)
+{
+	t_map map_data;
+
+	if (argc != 2)
+		return (ft_printf("Usage: ./so_long map.ber\n"), 1);
+	ft_bzero(&map_data, sizeof(t_map));
+	map_data.map_array = read_map_file(argv[1]);
+	if (!map_data.map_array)
+		return (1);
+	if (!check_map_validity(&map_data))
+	{
+		free_map(map_data.map_array);
+		return (1);
+	}
+	ft_printf("Map validated successfully!\n");
+
+	/* -- Initialize window & load textures -- */
+	if (!init_window(&map_data))
+	{
+		free_map(map_data.map_array);
+		return (1);
+	}
+
+	/* -- Render the map once -- */
+	render_map(&map_data);
+
+	/* -- Hook your key events + close events -- */
+	mlx_key_hook(map_data.win, handle_keypress, &map_data); // We'll code 'handle_keypress' soon
+	mlx_hook(map_data.win, 17, 0, close_game, &map_data);	// 17 is the "destroy window" event on Linux
+
+	/* -- Start the MLX event loop -- */
+	mlx_loop(map_data.mlx);
+
+	free_map(map_data.map_array);
+	return (0);
+}
