@@ -6,14 +6,35 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/04 15:28:27 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/04 16:38:28 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/09 16:05:30 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
 /* Function prototype for fill_map_dimensions */
-static int fill_map_dimensions(t_map *map_data);
+static int fill_map_dimensions(t_map *map_data)
+{
+	int i = 0;
+
+	while (map_data->map_array && map_data->map_array[i])
+	{
+		// 🔥 Supprime le saut de ligne s'il est présent en fin de ligne
+		int len = ft_strlen(map_data->map_array[i]);
+		if (len > 0 && map_data->map_array[i][len - 1] == '\n')
+			map_data->map_array[i][len - 1] = '\0';
+
+		i++;
+	}
+
+	map_data->height = i;
+	if (map_data->height == 0)
+		return (ft_printf("Error\nEmpty map.\n"), 0);
+
+	map_data->width = ft_strlen(map_data->map_array[0]); // 🔥 Maintenant bien calculé
+	printf("Map width: %d, Map height: %d\n", map_data->width, map_data->height);
+	return (1);
+}
 
 /*
 ** check_map_validity:
@@ -38,27 +59,6 @@ int check_map_validity(t_map *map_data)
     return (1);
 }
 
-/*
-** fill_map_dimensions:
-**  - Figures out map_data->width and map_data->height
-**  - Also initializes counts for player, exit, collect to 0
-*/
-static int fill_map_dimensions(t_map *map_data)
-{
-    int i;
-
-    i = 0;
-    while (map_data->map_array && map_data->map_array[i])
-        i++;
-    map_data->height = i;
-    if (map_data->height == 0)
-        return (ft_printf("Error\nEmpty map.\n"), 0);
-    map_data->width = (int)ft_strlen(map_data->map_array[0]);
-    map_data->player_count = 0;
-    map_data->exit_count = 0;
-    map_data->collect_count = 0;
-    return (1);
-}
 
 int check_rectangle(t_map *map_data)
 {
@@ -81,11 +81,18 @@ int check_walls(t_map *map_data)
     int i;
     int last_row;
 
-    i = 0;
+	i = 0;
     last_row = map_data->height - 1;
-    while (map_data->map_array[0][i])
+	
+	printf("First line: %s\n", map_data->map_array[0]);
+	printf("Last line: %s\n", map_data->map_array[last_row]);
+	
+	while (i < map_data->width)
     {
-        if (map_data->map_array[0][i] != '1' || map_data->map_array[last_row][i] != '1')
+		printf("Checking: First row[%d] = '%c', Last row[%d] = '%c'\n",
+			   i, map_data->map_array[0][i], i, map_data->map_array[last_row][i]);
+			   
+		if (map_data->map_array[0][i] != '1' || map_data->map_array[last_row][i] != '1')
             return (ft_printf("Error\nTop or bottom wall missing.\n"), 0);
         i++;
     }
