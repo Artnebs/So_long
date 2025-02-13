@@ -1,82 +1,75 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   player_movement.c                                  :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/04 15:57:31 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/04 15:57:36 by anebbou          ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "so_long.h"
 
-/* Adjust keycodes for your system or define them in your so_long.h */
-#define KEY_W 119
-#define KEY_S 115
-#define KEY_A 97
-#define KEY_D 100
-#define KEY_ESC 65307
-
-int handle_keypress(int keycode, t_map *map_data)
+/*
+** handle_keypress:
+**  - WASD to move.
+**  - ESC to close.
+*/
+int handle_keypress(int keycode, t_game *game)
 {
 	if (keycode == KEY_ESC)
-		close_game(map_data);
+		close_game(game);
 	else if (keycode == KEY_W)
-		move_player(map_data, -1, 0);
+		move_player(game, -1, 0);
 	else if (keycode == KEY_S)
-		move_player(map_data, 1, 0);
+		move_player(game, 1, 0);
 	else if (keycode == KEY_A)
-		move_player(map_data, 0, -1);
+		move_player(game, 0, -1);
 	else if (keycode == KEY_D)
-		move_player(map_data, 0, 1);
+		move_player(game, 0, 1);
 	return (0);
 }
 
 /*
 ** move_player:
-**  - Checks if next cell is wall => ignore
-**  - If collectible => increment collected, set cell to '0'
-**  - If exit => check if all collects are done => win => close_game
-**  - Otherwise, update map with new player position
+**  - dx, dy = direction of movement in row/col.
+**  - Check walls. If next cell is a wall '1', don't move.
+**  - If next cell is 'C', decrement collect_count and change to '0'.
+**  - If next cell is 'E' and collect_count == 0 => win_game().
+**  - Otherwise just move and update 'P' position in the map array.
+**  - Then re-render the map.
 */
-void move_player(t_map *map_data, int dx, int dy)
+void move_player(t_game *game, int dx, int dy)
 {
 	int new_x;
 	int new_y;
-	char next_cell;
 
-	new_x = map_data->player_x + dx;
-	new_y = map_data->player_y + dy;
-	next_cell = map_data->map_array[new_x][new_y];
-	if (next_cell == '1')
-		return; /* blocked by wall */
+	new_x = game->map->player_x + dx;
+	new_y = game->map->player_y + dy;
 
-	if (next_cell == 'C')
+	// Check boundaries
+	if (new_x < 0 || new_y < 0 || new_x >= game->map->height || new_y >= game->map->width)
+		return;
+
+	// If it's a wall, ignore
+	if (game->map->map_array[new_x][new_y] == '1')
+		return;
+
+	// If next cell is exit and we have no more collectibles, we win
+	if (game->map->map_array[new_x][new_y] == 'E')
 	{
-		map_data->collect_count--;
-		map_data->map_array[new_x][new_y] = '0';
-	}
-	else if (next_cell == 'E')
-	{
-		if (map_data->collect_count == 0)
-		{
-			ft_printf("You collected all items! You win!\n");
-			close_game(map_data);
-		}
+		if (game->map->collect_count == 0)
+			win_game(game);
 		return;
 	}
 
-	/* Update map: remove old 'P', place new 'P' */
-	map_data->map_array[map_data->player_x][map_data->player_y] = '0';
-	map_data->map_array[new_x][new_y] = 'P';
-	map_data->player_x = new_x;
-	map_data->player_y = new_y;
+	// If next cell is a collectible, pick it up
+	if (game->map->map_array[new_x][new_y] == 'C')
+	{
+		game->map->collect_count--;
+		game->map->map_array[new_x][new_y] = '0';
+	}
 
-	map_data->moves++;
-	ft_printf("Moves: %d\n", map_data->moves);
+	// Move: set old position to '0', new position to 'P'
+	game->map->map_array[game->map->player_x][game->map->player_y] = '0';
+	game->map->map_array[new_x][new_y] = 'P';
+	game->map->player_x = new_x;
+	game->map->player_y = new_y;
 
-	/* Re-render the map to show changes */
-	render_map(map_data);
+	// Increment moves count
+	game->map->moves++;
+	ft_printf("Moves: %d\n", game->map->moves);
+
+	// Re-render after movement
+	render_map(game);
 }

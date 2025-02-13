@@ -6,7 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/04 16:20:57 by anebbou          ###   ########.fr        #
+#    Updated: 2025/02/10 16:24:22 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ MLX_LIB    = $(MLX_DIR)/libmlx.a
 # COMPILER & FLAGS
 # ---------------------------------------------------------------------------- #
 CC         = gcc
-CFLAGS     = -Wall -Wextra -Werror \
+CFLAGS     = -Wall -Wextra -Werror -g \
              -I. \
              -I$(LIBFT_DIR)/includes \
              -I$(MLX_DIR)
@@ -39,7 +39,8 @@ CFLAGS     = -Wall -Wextra -Werror \
 # ---------------------------------------------------------------------------- #
 SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
              map_parsing.c map_validation.c player_movement.c \
-             render_map.c so_long.c
+             render_map.c so_long.c \
+			 load_default_map.c resize_hook.c
 OBJS       = $(SRCS:.c=.o)
 
 # ---------------------------------------------------------------------------- #
@@ -74,7 +75,6 @@ $(LIBFT):
 	fi
 	@echo "Building Libft library..."
 	make -C $(LIBFT_DIR)
-	@touch $@
 
 # ---------------------------------------------------------------------------- #
 # BUILD MINILIBX
@@ -97,12 +97,16 @@ clean:
 	fi
 
 fclean: clean
+	@echo "Removing $(NAME)..."
 	rm -f $(NAME)
-	@if [ -f "$(LIBFT)" ]; then \
-		rm -f $(LIBFT); \
-		echo "Removed libft.a"; \
-	fi
 
 re: fclean all
 
-.PHONY: all clean fclean re
+# ---------------------------------------------------------------------------- #
+# DEBUG RULES
+# ---------------------------------------------------------------------------- #
+debug: fclean
+	@echo "Compiling with debug symbols (-g)..."
+	$(MAKE) CFLAGS="-Wall -Wextra -Werror -g" all
+
+.PHONY: all clean fclean re debug
