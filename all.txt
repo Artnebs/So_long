@@ -141,39 +141,40 @@ void free_textures(t_game *game)
     game->textures = NULL;
 }
 
+
 /*
 ** close_game:
-**  - Destroy window if it exists.
-**  - Free textures, map array, the map struct, the mlx struct, and game itself.
-**  - Exit(0).
-**  - Return 0 so it can be used as a callback.
+**  - Stops background music.
+**  - Frees all allocated memory and closes the window.
+**  - Returns 0 for proper MLX callback handling.
 */
 int close_game(t_game *game)
 {
-    if (!game)
-        exit(0);
-    if (game->mlx)
-    {
-        if (game->mlx->win)
-            mlx_destroy_window(game->mlx->id, game->mlx->win);
-        free_textures(game);
-    }
-    if (game->map)
-    {
-        free_map(game->map->map_array);
-        free(game->map);
-        game->map = NULL;
-    }
-    if (game->mlx)
-    {
-        // If needed, we could also do: mlx_destroy_display(game->mlx->id);
-        // but it depends on your system. Then free(game->mlx->id);
-        free(game->mlx);
-        game->mlx = NULL;
-    }
-    free(game);
-    exit(0);
-    return (0);
+	if (!game)
+		exit(0);
+
+	stop_background_music(); // Stop music
+
+	if (game->mlx)
+	{
+		if (game->mlx->win)
+			mlx_destroy_window(game->mlx->id, game->mlx->win);
+		free_textures(game);
+	}
+	if (game->map)
+	{
+		free_map(game->map->map_array);
+		free(game->map);
+		game->map = NULL;
+	}
+	if (game->mlx)
+	{
+		free(game->mlx);
+		game->mlx = NULL;
+	}
+	free(game);
+	exit(0);
+	return (0);
 }
 
 /*
@@ -253,34 +254,29 @@ int init_window(t_game *game)
 }
 #include "so_long.h"
 
-static t_map *allocate_map(int rows)
-{
-	t_map *map;
-
-	map = ft_calloc(1, sizeof(t_map));
-	if (!map)
-		return (NULL);
-	map->map_array = ft_calloc(rows + 1, sizeof(char *));
-	if (!map->map_array)
-	{
-		free(map);
-		return (NULL);
-	}
-	return (map);
-}
-
+/*
+** load_default_map:
+**  - Loads a default map with 2 monsters placed correctly.
+**  - Ensures they start on empty ground (not walls).
+*/
 void load_default_map(t_game *game)
 {
 	static char *def_map[] = {
-		"1111111111111111",
-		"1P0000C000000001",
-		"1011011011110111",
-		"100001000000C0E1",
-		"1011110111110101",
-		"1000C00000000001",
-		"1011011011110111",
-		"1C0001000000C001",
-		"1111111111111111",
+		"11111111111111111111",
+		"1P0000C00000000000E1",
+		"10110110111101111101",
+		"100001000000C0000001",
+		"10111101111101111101",
+		"1000C000000000000001",
+		"10110110111101111101",
+		"1C0001000000C0000001",
+		"10111101101110111001",
+		"100000000M0000000001",
+		"10110111111101110101",
+		"1M000100000000000001",
+		"10111101101110111001",
+		"10000000000000000001",
+		"11111111111111111111",
 		NULL};
 
 	t_map *map;
@@ -290,9 +286,15 @@ void load_default_map(t_game *game)
 	rows = 0;
 	while (def_map[rows])
 		rows++;
-	map = allocate_map(rows);
+	map = ft_calloc(1, sizeof(t_map));
 	if (!map)
 		return;
+	map->map_array = ft_calloc(rows + 1, sizeof(char *));
+	if (!map->map_array)
+	{
+		free(map);
+		return;
+	}
 	i = 0;
 	while (i < rows)
 	{
@@ -306,31 +308,28 @@ void load_default_map(t_game *game)
 	}
 	map->height = rows;
 	map->width = ft_strlen(def_map[0]);
+	map->player_lives = 3; // Set player lives
 	game->map = map;
 }
 #include "so_long.h"
 
 /*
 ** load_textures:
-** Try to load each .xpm file.
-** If it fails, print an error but DON'T exit.
-** We'll fallback to using colors in render_map().
-** Return 0 on success, 1 if any texture fails.
+**  - Loads each .xpm file for textures.
+**  - If a file is missing, prints a warning but doesn't crash.
 */
 int load_textures(t_game *game)
 {
 	int width;
 	int height;
 
-	// Always allocate textures, even if we use color fallback
 	game->textures = (t_textures *)ft_calloc(1, sizeof(t_textures));
 	if (!game->textures)
 	{
-		ft_printf("Error\nFailed to allocate t_textures.\n");
+		ft_printf("Error\nFailed to allocate textures.\n");
 		return (1);
 	}
 
-	// Load textures (will fail if files are missing)
 	game->textures->wall = mlx_xpm_file_to_image(game->mlx->id, "textures/wall.xpm", &width, &height);
 	if (!game->textures->wall)
 		ft_printf("Warning\nFailed to load wall.xpm.\n");
@@ -351,9 +350,13 @@ int load_textures(t_game *game)
 	if (!game->textures->floor)
 		ft_printf("Warning\nFailed to load floor.xpm.\n");
 
-	// If all textures are missing, return 1 to indicate fallback mode
+	game->textures->monster = mlx_xpm_file_to_image(game->mlx->id, "textures/monster.xpm", &width, &height);
+	if (!game->textures->monster)
+		ft_printf("Warning\nFailed to load monster.xpm.\n");
+
 	if (!game->textures->wall && !game->textures->player &&
-		!game->textures->collectible && !game->textures->exit && !game->textures->floor)
+		!game->textures->collectible && !game->textures->exit &&
+		!game->textures->floor && !game->textures->monster)
 	{
 		ft_printf("Warning: No textures loaded. Using fallback colors.\n");
 	}
@@ -361,6 +364,7 @@ int load_textures(t_game *game)
 	return (0);
 }
 #include "so_long.h"
+#include <stdlib.h> // Required for rand()
 
 /*
 ** copy_old_map:
@@ -368,14 +372,14 @@ int load_textures(t_game *game)
 */
 static void copy_old_map(char **old_map, char **new_map, int count)
 {
-    int i;
+	int i;
 
-    i = 0;
-    while (i < count)
-    {
-        new_map[i] = old_map[i];
-        i++;
-    }
+	i = 0;
+	while (i < count)
+	{
+		new_map[i] = old_map[i];
+		i++;
+	}
 }
 
 /*
@@ -386,41 +390,41 @@ static void copy_old_map(char **old_map, char **new_map, int count)
 */
 char **read_map_file(char *filename)
 {
-    int fd;
-    int count;
-    char *line;
-    char **map;
-    char **temp;
+	int fd;
+	int count;
+	char *line;
+	char **map;
+	char **temp;
 
-    fd = open(filename, O_RDONLY);
-    if (fd < 0)
-    {
-        ft_printf("Error\nFailed to open file: %s\n", filename);
-        return (NULL);
-    }
-    map = NULL;
-    count = 0;
-    line = get_next_line(fd);
-    while (line)
-    {
-        temp = map;
-        map = (char **)malloc(sizeof(char *) * (count + 2));
-        if (!map)
-        {
-            free_map(temp);
-            close(fd);
-            ft_printf("Error\nmalloc failed in read_map_file().\n");
-            return (NULL);
-        }
-        copy_old_map(temp, map, count);
-        map[count] = line; // line includes its '\n'
-        map[count + 1] = NULL;
-        count++;
-        free(temp); // free old pointer (not its contents)
-        line = get_next_line(fd);
-    }
-    close(fd);
-    return (map);
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+	{
+		ft_printf("Error\nFailed to open file: %s\n", filename);
+		return (NULL);
+	}
+	map = NULL;
+	count = 0;
+	line = get_next_line(fd);
+	while (line)
+	{
+		temp = map;
+		map = (char **)malloc(sizeof(char *) * (count + 2));
+		if (!map)
+		{
+			free_map(temp);
+			close(fd);
+			ft_printf("Error\nmalloc failed in read_map_file().\n");
+			return (NULL);
+		}
+		copy_old_map(temp, map, count);
+		map[count] = line; // line includes its '\n'
+		map[count + 1] = NULL;
+		count++;
+		free(temp); // free old pointer (not its contents)
+		line = get_next_line(fd);
+	}
+	close(fd);
+	return (map);
 }
 
 /*
@@ -429,58 +433,107 @@ char **read_map_file(char *filename)
 */
 void free_map(char **map_array)
 {
-    int i;
+	int i;
 
-    if (!map_array)
-        return;
-    i = 0;
-    while (map_array[i])
-    {
-        free(map_array[i]);
-        i++;
-    }
-    free(map_array);
+	if (!map_array)
+		return;
+	i = 0;
+	while (map_array[i])
+	{
+		free(map_array[i]);
+		i++;
+	}
+	free(map_array);
+}
+
+/*
+** place_collectibles_randomly:
+**  - Places `num_collectibles` collectibles at random empty positions.
+*/
+void place_collectibles_randomly(t_game *game, int num_collectibles)
+{
+	int placed = 0;
+	while (placed < num_collectibles)
+	{
+		int x = rand() % game->map->width;
+		int y = rand() % game->map->height;
+
+		if (game->map->map_array[y][x] == '0') // Place only on empty tiles
+		{
+			game->map->map_array[y][x] = 'C';
+			placed++;
+		}
+	}
+}
+
+/*
+** place_monsters_randomly:
+**  - Places a fixed number of monsters (e.g., 2) at random empty positions.
+*/
+void place_monsters_randomly(t_game *game, int num_monsters)
+{
+	int placed = 0;
+	while (placed < num_monsters)
+	{
+		int x = rand() % game->map->width;
+		int y = rand() % game->map->height;
+
+		if (game->map->map_array[y][x] == '0') // Place only on empty tiles
+		{
+			game->map->map_array[y][x] = 'M';
+			placed++;
+		}
+	}
 }
 
 /*
 ** parse_map:
 **  - Allocate t_map, read file into map_array, set width/height.
+**  - Places random collectibles and monsters.
 **  - Return 1 on success, 0 on error.
 */
 int parse_map(t_game *game, char *filename)
 {
-    game->map = (t_map *)ft_calloc(1, sizeof(t_map));
-    if (!game->map)
-    {
-        ft_printf("Error\nFailed to allocate t_map.\n");
-        return (0);
-    }
-    game->map->map_array = read_map_file(filename);
-    if (!game->map->map_array)
-    {
-        free(game->map);
-        game->map = NULL;
-        return (0);
-    }
+	// Seed randomness for collectibles/monsters
+	srand(time(NULL));
 
-    // Prevent memory leak by checking before returning
-    game->map->height = 0;
-    while (game->map->map_array[game->map->height])
-        game->map->height++;
+	game->map = (t_map *)ft_calloc(1, sizeof(t_map));
+	if (!game->map)
+	{
+		ft_printf("Error\nFailed to allocate t_map.\n");
+		return (0);
+	}
+	game->map->map_array = read_map_file(filename);
+	if (!game->map->map_array)
+	{
+		free(game->map);
+		game->map = NULL;
+		return (0);
+	}
 
-    if (game->map->height > 0)
-        game->map->width = ft_strlen(game->map->map_array[0]);
+	// Prevent memory leak by checking before returning
+	game->map->height = 0;
+	while (game->map->map_array[game->map->height])
+		game->map->height++;
 
-    // Check for empty map
-    if (game->map->height == 0 || game->map->width == 0)
-    {
-        ft_printf("Error\nEmpty map.\n");
-        free_map(game->map->map_array);
-        free(game->map);
-        game->map = NULL;
-        return (0);
-    }
-    return (1);
+	if (game->map->height > 0)
+		game->map->width = ft_strlen(game->map->map_array[0]);
+
+	// Check for empty map
+	if (game->map->height == 0 || game->map->width == 0)
+	{
+		ft_printf("Error\nEmpty map.\n");
+		free_map(game->map->map_array);
+		free(game->map);
+		game->map = NULL;
+		return (0);
+	}
+
+	// Add collectibles and monsters
+	place_collectibles_randomly(game, 5); // 5 collectibles
+	place_monsters_randomly(game, 2);	  // 2 monsters
+
+	return (1);
 }
 #include "so_long.h"
 
@@ -623,11 +676,13 @@ int check_map_validity(t_map *map_data)
     return (1);
 }
 #include "so_long.h"
+#include <stdlib.h> // For rand()
 
 /*
 ** handle_keypress:
 **  - WASD to move.
 **  - ESC to close.
+**  - After each move, monsters move too.
 */
 int handle_keypress(int keycode, t_game *game)
 {
@@ -641,17 +696,100 @@ int handle_keypress(int keycode, t_game *game)
 		move_player(game, 0, -1);
 	else if (keycode == KEY_D)
 		move_player(game, 0, 1);
+
+	// Move monsters after player's turn
+	move_monsters(game);
+
 	return (0);
 }
 
 /*
+** move_monsters:
+**  - Moves all monsters **only after the player moves**.
+**  - Ensures they **don't delete collectibles** when passing over them.
+*/
+void move_monsters(t_game *game)
+{
+	int y, x, new_y, new_x, direction;
+	char previous_tile;
+
+	for (y = 0; y < game->map->height; y++)
+	{
+		for (x = 0; x < game->map->width; x++)
+		{
+			if (game->map->map_array[y][x] == 'M') // Found a monster
+			{
+				// Generate random movement: 0 = Up, 1 = Down, 2 = Left, 3 = Right
+				direction = rand() % 4;
+				new_y = y;
+				new_x = x;
+
+				if (direction == 0)
+					new_y--; // Up
+				else if (direction == 1)
+					new_y++; // Down
+				else if (direction == 2)
+					new_x--; // Left
+				else if (direction == 3)
+					new_x++; // Right
+
+				// Check if the new position is valid (monsters can walk over collectibles)
+				if (new_y >= 0 && new_x >= 0 &&
+					new_y < game->map->height && new_x < game->map->width &&
+					(game->map->map_array[new_y][new_x] == '0' ||
+					 game->map->map_array[new_y][new_x] == 'C' ||
+					 game->map->map_array[new_y][new_x] == 'P'))
+				{
+					// Store the tile that was here before (to restore it later)
+					previous_tile = game->map->map_array[new_y][new_x];
+
+					// If monster moves into the player, player loses a life
+					if (previous_tile == 'P')
+					{
+						lose_game(game);
+					}
+
+					// Move monster
+					game->map->map_array[y][x] = (game->map->map_array[y][x] == 'C') ? 'C' : '0'; // Restore collectible if needed
+					game->map->map_array[new_y][new_x] = 'M';
+
+					// Restore previous tile (if collectible, keep it after move)
+					if (previous_tile == 'C')
+						game->map->map_array[y][x] = 'C';
+				}
+			}
+		}
+	}
+
+	// Re-render after monsters move
+	render_map(game);
+}
+
+/*
+** lose_game:
+**  - If player touches a monster, decrease lives.
+**  - If lives reach 0, print "Game Over!" and close the game.
+**  - Otherwise, display remaining lives.
+*/
+void lose_game(t_game *game)
+{
+	game->map->player_lives--;
+
+	if (game->map->player_lives <= 0)
+	{
+		ft_printf("Game Over! You lost all your lives.\n");
+		close_game(game);
+	}
+	else
+	{
+		ft_printf("You got hit! Lives left: %d\n", game->map->player_lives);
+	}
+}
+
+/*
 ** move_player:
-**  - dx, dy = direction of movement in row/col.
-**  - Check walls. If next cell is a wall '1', don't move.
-**  - If next cell is 'C', decrement collect_count and change to '0'.
-**  - If next cell is 'E' and collect_count == 0 => win_game().
-**  - Otherwise just move and update 'P' position in the map array.
-**  - Then re-render the map.
+**  - If player moves onto 'M', they lose a life instead of instant death.
+**  - If lives reach 0, the game ends.
 */
 void move_player(t_game *game, int dx, int dy)
 {
@@ -665,11 +803,18 @@ void move_player(t_game *game, int dx, int dy)
 	if (new_x < 0 || new_y < 0 || new_x >= game->map->height || new_y >= game->map->width)
 		return;
 
-	// If it's a wall, ignore
+	// If it's a wall, ignore movement
 	if (game->map->map_array[new_x][new_y] == '1')
 		return;
 
-	// If next cell is exit and we have no more collectibles, we win
+	// If next cell is a monster, lose a life
+	if (game->map->map_array[new_x][new_y] == 'M')
+	{
+		lose_game(game);
+		return;
+	}
+
+	// If next cell is an exit and all collectibles are collected, player wins
 	if (game->map->map_array[new_x][new_y] == 'E')
 	{
 		if (game->map->collect_count == 0)
@@ -684,32 +829,28 @@ void move_player(t_game *game, int dx, int dy)
 		game->map->map_array[new_x][new_y] = '0';
 	}
 
-	// Move: set old position to '0', new position to 'P'
+	// Move player
 	game->map->map_array[game->map->player_x][game->map->player_y] = '0';
 	game->map->map_array[new_x][new_y] = 'P';
 	game->map->player_x = new_x;
 	game->map->player_y = new_y;
-
-	// Increment moves count
 	game->map->moves++;
-	ft_printf("Moves: %d\n", game->map->moves);
 
-	// Re-render after movement
+	ft_printf("Moves: %d | Lives: %d\n", game->map->moves, game->map->player_lives);
+
 	render_map(game);
 }
 #include "so_long.h"
 
 /*
 ** draw_tile:
-**  - Draw a single TILE_SIZE x TILE_SIZE square using mlx_pixel_put().
-**    We added a safety check and a debug print to help diagnose crashes.
+**  - Draws a colored tile at a given position using `mlx_pixel_put()`.
 */
 void draw_tile(t_game *game, int y, int x, int color)
 {
 	int i;
 	int j;
 
-	/* Safety check: make sure the window pointer is valid */
 	if (!game->mlx->win)
 	{
 		ft_printf("DEBUG: draw_tile called but win is NULL!\n");
@@ -721,12 +862,7 @@ void draw_tile(t_game *game, int y, int x, int color)
 		j = 0;
 		while (j < TILE_SIZE)
 		{
-			mlx_pixel_put(
-				game->mlx->id,
-				game->mlx->win,
-				x * TILE_SIZE + j,
-				y * TILE_SIZE + i,
-				color);
+			mlx_pixel_put(game->mlx->id, game->mlx->win, x * TILE_SIZE + j, y * TILE_SIZE + i, color);
 			j++;
 		}
 		i++;
@@ -735,17 +871,15 @@ void draw_tile(t_game *game, int y, int x, int color)
 
 /*
 ** render_map:
-**  - Iterates over map_array and draws each cell.
-**  - If textures are loaded (non-null), you use mlx_put_image_to_window().
-**    Otherwise fallback to color placeholders using draw_tile().
-**
-** We've added a debug print in the fallback branch so you see exactly which tile
-** is being drawn with colors.
+**  - Iterates over the map and draws each cell.
+**  - Displays collectibles and lives in the UI.
 */
 void render_map(t_game *game)
 {
 	int y;
 	int x;
+
+	mlx_clear_window(game->mlx->id, game->mlx->win);
 
 	y = 0;
 	while (y < game->map->height)
@@ -753,46 +887,46 @@ void render_map(t_game *game)
 		x = 0;
 		while (x < game->map->width)
 		{
-			/*
-			** Force using colors when textures are missing:
-			** If ANY texture pointer is missing, we go color fallback.
-			*/
-			if (!game->textures || !game->textures->wall ||
-				!game->textures->player || !game->textures->collectible ||
-				!game->textures->exit || !game->textures->floor)
+			if (!game->textures->wall || !game->textures->player ||
+				!game->textures->collectible || !game->textures->exit || !game->textures->floor)
 			{
-				ft_printf("DEBUG: fallback tile at y=%d x=%d -> %c\n",
-						  y, x, game->map->map_array[y][x]);
-
-				if (game->map->map_array[y][x] == '1') // Wall
+				if (game->map->map_array[y][x] == '1')
 					draw_tile(game, y, x, COLOR_WALL);
-				else if (game->map->map_array[y][x] == 'P') // Player
+				else if (game->map->map_array[y][x] == 'P')
 					draw_tile(game, y, x, COLOR_PLAYER);
-				else if (game->map->map_array[y][x] == 'C') // Collectible
+				else if (game->map->map_array[y][x] == 'C')
 					draw_tile(game, y, x, COLOR_COLLECT);
-				else if (game->map->map_array[y][x] == 'E') // Exit
+				else if (game->map->map_array[y][x] == 'E')
 					draw_tile(game, y, x, COLOR_EXIT);
-				else // Floor
+				else if (game->map->map_array[y][x] == 'M')
+					draw_tile(game, y, x, COLOR_MONSTER);
+				else
 					draw_tile(game, y, x, COLOR_FLOOR);
 			}
 			else
 			{
-				// **Otherwise, use textures**
-				if (game->map->map_array[y][x] == '1' && game->textures->wall)
+				if (game->map->map_array[y][x] == '1')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->wall, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->map->map_array[y][x] == 'P' && game->textures->player)
+				else if (game->map->map_array[y][x] == 'P')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->player, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->map->map_array[y][x] == 'C' && game->textures->collectible)
+				else if (game->map->map_array[y][x] == 'C')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->collectible, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->map->map_array[y][x] == 'E' && game->textures->exit)
+				else if (game->map->map_array[y][x] == 'E')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->exit, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->textures->floor) // Default case: floor
+				else if (game->map->map_array[y][x] == 'M')
+					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->monster, x * TILE_SIZE, y * TILE_SIZE);
+				else if (game->textures->floor)
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->floor, x * TILE_SIZE, y * TILE_SIZE);
 			}
 			x++;
 		}
 		y++;
 	}
+
+	// Draw UI Elements (Collectibles & Lives)
+	char status[100];
+	snprintf(status, sizeof(status), "Collectibles: %d | Lives: %d", game->map->collect_count, game->map->player_lives);
+	mlx_string_put(game->mlx->id, game->mlx->win, 10, 10, 0xFFFFFF, status);
 }
 #include "so_long.h"
 
@@ -828,17 +962,40 @@ int resize_hook(int width, int height, t_game *game)
 }
 #include "so_long.h"
 
+/*
+** play_background_music:
+**  - Uses system() to play the MP3 file in the background on repeat.
+**  - Requires `mpg123` installed.
+*/
+void play_background_music()
+{
+	system("mpg123 -q --loop -1 " MP3_FILE " &");
+}
+
+/*
+** stop_background_music:
+**  - Kills all `mpg123` processes when the game closes.
+*/
+void stop_background_music()
+{
+	system("pkill -f mpg123");
+}
+
+/*
+** init_all:
+**  - Initializes everything (MLX, map, textures).
+**  - Ensures proper memory allocation.
+**  - Handles fallback in case of errors.
+*/
 static int init_all(t_game *game, int argc, char **argv)
 {
 	if (init_mlx(game))
 		return (1);
 
-	// Ensure `game->map` is properly allocated
 	game->map = ft_calloc(1, sizeof(t_map));
 	if (!game->map)
 		return (ft_printf("Error\nFailed to allocate t_map.\n"), 1);
 
-	// Load map (either from file or default)
 	if (argc == 2)
 	{
 		if (!parse_map(game, argv[1]))
@@ -850,22 +1007,18 @@ static int init_all(t_game *game, int argc, char **argv)
 		load_default_map(game);
 	}
 
-	// Validate the loaded map
 	if (!check_map_validity(game->map))
 		return (1);
 
-	// Set window size
 	game->mlx->win_width = 1024;
 	game->mlx->win_height = 768;
 
 	if (init_window(game))
 		return (1);
 
-	// Load textures (fallback to colors if failed)
 	if (load_textures(game))
 		ft_printf("Warning: Textures not loaded.\n");
 
-	// Ensure `game->map->map_array` exists before rendering
 	if (!game->map->map_array)
 		return (ft_printf("Error\nInvalid map array.\n"), 1);
 
@@ -881,19 +1034,16 @@ int main(int argc, char **argv)
 	if (!game)
 		return (ft_printf("Error\nAllocation failed.\n"), 1);
 
-	/* If init_all fails, close_game will free and exit. */
 	if (init_all(game, argc, argv))
 		return (close_game(game));
 
-	/* Key hook to catch W,A,S,D or ESC */
-	mlx_key_hook(game->mlx->win, handle_keypress, game);
+	play_background_music(); // Start music when game launches
 
-	/* Hook for window close button (button X) */
+	mlx_key_hook(game->mlx->win, handle_keypress, game);
 	mlx_hook(game->mlx->win, 17, 0, close_game, game);
 
-
-	//mlx_hook(game->mlx->win, ConfigureNotify, StructureNotifyMask, resize_hook, game);
-
 	mlx_loop(game->mlx->id);
+
+	stop_background_music(); // Stop music on game exit
 	return (close_game(game));
 }

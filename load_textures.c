@@ -2,25 +2,21 @@
 
 /*
 ** load_textures:
-** Try to load each .xpm file.
-** If it fails, print an error but DON'T exit.
-** We'll fallback to using colors in render_map().
-** Return 0 on success, 1 if any texture fails.
+**  - Loads each .xpm file for textures.
+**  - If a file is missing, prints a warning but doesn't crash.
 */
 int load_textures(t_game *game)
 {
 	int width;
 	int height;
 
-	// Always allocate textures, even if we use color fallback
 	game->textures = (t_textures *)ft_calloc(1, sizeof(t_textures));
 	if (!game->textures)
 	{
-		ft_printf("Error\nFailed to allocate t_textures.\n");
+		ft_printf("Error\nFailed to allocate textures.\n");
 		return (1);
 	}
 
-	// Load textures (will fail if files are missing)
 	game->textures->wall = mlx_xpm_file_to_image(game->mlx->id, "textures/wall.xpm", &width, &height);
 	if (!game->textures->wall)
 		ft_printf("Warning\nFailed to load wall.xpm.\n");
@@ -41,9 +37,13 @@ int load_textures(t_game *game)
 	if (!game->textures->floor)
 		ft_printf("Warning\nFailed to load floor.xpm.\n");
 
-	// If all textures are missing, return 1 to indicate fallback mode
+	game->textures->monster = mlx_xpm_file_to_image(game->mlx->id, "textures/monster.xpm", &width, &height);
+	if (!game->textures->monster)
+		ft_printf("Warning\nFailed to load monster.xpm.\n");
+
 	if (!game->textures->wall && !game->textures->player &&
-		!game->textures->collectible && !game->textures->exit && !game->textures->floor)
+		!game->textures->collectible && !game->textures->exit &&
+		!game->textures->floor && !game->textures->monster)
 	{
 		ft_printf("Warning: No textures loaded. Using fallback colors.\n");
 	}

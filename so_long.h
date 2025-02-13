@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include <X11/Xlib.h>
 #include <mlx.h>		   // MiniLibX
 #include "libft.h"		   // Your libft (ft_printf, ft_strlen, etc.)
@@ -32,6 +33,8 @@
 
 // Tile size in pixels
 #define TILE_SIZE 32
+#define MP3_FILE "music/Cornfield_Chase_Interstellar_Soundtrack-643446-mobiles24.mp3"
+
 
 // Colors (for placeholder rendering)
 #define COLOR_WALL 0xAAAAAA	   // Gray
@@ -39,6 +42,14 @@
 #define COLOR_COLLECT 0x0000FF // Blue
 #define COLOR_EXIT 0x00FF00	   // Green
 #define COLOR_FLOOR 0xFFFFFF   // White
+#define COLOR_MONSTER 0xFFA500 // Orange (New: Monster fallback color)
+
+#define WALL_TEXTURE "textures/wall.xpm"
+#define PLAYER_TEXTURE "textures/player.xpm"
+#define COLLECTIBLE_TEXTURE "textures/collectible.xpm"
+#define EXIT_TEXTURE "textures/exit.xpm"
+#define FLOOR_TEXTURE "textures/floor.xpm"
+#define MONSTER_TEXTURE "textures/monster.xpm" // New: Monster texture
 
 /* ------------------------------------ */
 
@@ -62,6 +73,7 @@ typedef struct s_textures
 	void *player;
 	void *collectible;
 	void *exit;
+	void *monster; // New: Monster texture
 } t_textures;
 
 /*
@@ -77,10 +89,10 @@ typedef struct s_map
 	int player_count;
 	int exit_count;
 	int collect_count;
-
-	int player_x; // Player position (row)
-	int player_y; // Player position (col)
-	int moves;	  // Count movements
+	int player_x;	  // Player position (row)
+	int player_y;	  // Player position (col)
+	int moves;		  // Count movements
+	int player_lives; // New: Player lives
 } t_map;
 
 /*
@@ -111,6 +123,9 @@ typedef struct s_game
 /* so_long.c */
 int main(int argc, char **argv);
 
+void play_background_music();
+void stop_background_music();
+
 /* init_mlx.c */
 int init_mlx(t_game *game);
 int init_window(t_game *game);
@@ -122,6 +137,7 @@ int load_textures(t_game *game);
 char **read_map_file(char *filename);
 void free_map(char **map_array);
 int parse_map(t_game *game, char *filename);
+void place_collectibles_randomly(t_game *game, int num_collectibles);
 
 /* map_validation.c */
 int check_map_validity(t_map *map_data);
@@ -142,10 +158,13 @@ int resize_hook(int width, int height, t_game *game);
 int handle_keypress(int keycode, t_game *game);
 void move_player(t_game *game, int dx, int dy);
 
+/* monster_movement.c */ // New: File for monster behavior
+void move_monsters(t_game *game);
+void lose_game(t_game *game); // Updated: Handle lives before losing
+
 /* exit_game.c */
 void free_textures(t_game *game);
 int close_game(t_game *game);
 void win_game(t_game *game);
 
 #endif
-	

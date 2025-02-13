@@ -2,15 +2,13 @@
 
 /*
 ** draw_tile:
-**  - Draw a single TILE_SIZE x TILE_SIZE square using mlx_pixel_put().
-**    We added a safety check and a debug print to help diagnose crashes.
+**  - Draws a colored tile at a given position using `mlx_pixel_put()`.
 */
 void draw_tile(t_game *game, int y, int x, int color)
 {
 	int i;
 	int j;
 
-	/* Safety check: make sure the window pointer is valid */
 	if (!game->mlx->win)
 	{
 		ft_printf("DEBUG: draw_tile called but win is NULL!\n");
@@ -22,12 +20,7 @@ void draw_tile(t_game *game, int y, int x, int color)
 		j = 0;
 		while (j < TILE_SIZE)
 		{
-			mlx_pixel_put(
-				game->mlx->id,
-				game->mlx->win,
-				x * TILE_SIZE + j,
-				y * TILE_SIZE + i,
-				color);
+			mlx_pixel_put(game->mlx->id, game->mlx->win, x * TILE_SIZE + j, y * TILE_SIZE + i, color);
 			j++;
 		}
 		i++;
@@ -36,17 +29,15 @@ void draw_tile(t_game *game, int y, int x, int color)
 
 /*
 ** render_map:
-**  - Iterates over map_array and draws each cell.
-**  - If textures are loaded (non-null), you use mlx_put_image_to_window().
-**    Otherwise fallback to color placeholders using draw_tile().
-**
-** We've added a debug print in the fallback branch so you see exactly which tile
-** is being drawn with colors.
+**  - Iterates over the map and draws each cell.
+**  - Displays collectibles and lives in the UI.
 */
 void render_map(t_game *game)
 {
 	int y;
 	int x;
+
+	mlx_clear_window(game->mlx->id, game->mlx->win);
 
 	y = 0;
 	while (y < game->map->height)
@@ -54,44 +45,44 @@ void render_map(t_game *game)
 		x = 0;
 		while (x < game->map->width)
 		{
-			/*
-			** Force using colors when textures are missing:
-			** If ANY texture pointer is missing, we go color fallback.
-			*/
-			if (!game->textures || !game->textures->wall ||
-				!game->textures->player || !game->textures->collectible ||
-				!game->textures->exit || !game->textures->floor)
+			if (!game->textures->wall || !game->textures->player ||
+				!game->textures->collectible || !game->textures->exit || !game->textures->floor)
 			{
-				ft_printf("DEBUG: fallback tile at y=%d x=%d -> %c\n",
-						  y, x, game->map->map_array[y][x]);
-
-				if (game->map->map_array[y][x] == '1') // Wall
+				if (game->map->map_array[y][x] == '1')
 					draw_tile(game, y, x, COLOR_WALL);
-				else if (game->map->map_array[y][x] == 'P') // Player
+				else if (game->map->map_array[y][x] == 'P')
 					draw_tile(game, y, x, COLOR_PLAYER);
-				else if (game->map->map_array[y][x] == 'C') // Collectible
+				else if (game->map->map_array[y][x] == 'C')
 					draw_tile(game, y, x, COLOR_COLLECT);
-				else if (game->map->map_array[y][x] == 'E') // Exit
+				else if (game->map->map_array[y][x] == 'E')
 					draw_tile(game, y, x, COLOR_EXIT);
-				else // Floor
+				else if (game->map->map_array[y][x] == 'M')
+					draw_tile(game, y, x, COLOR_MONSTER);
+				else
 					draw_tile(game, y, x, COLOR_FLOOR);
 			}
 			else
 			{
-				// **Otherwise, use textures**
-				if (game->map->map_array[y][x] == '1' && game->textures->wall)
+				if (game->map->map_array[y][x] == '1')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->wall, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->map->map_array[y][x] == 'P' && game->textures->player)
+				else if (game->map->map_array[y][x] == 'P')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->player, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->map->map_array[y][x] == 'C' && game->textures->collectible)
+				else if (game->map->map_array[y][x] == 'C')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->collectible, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->map->map_array[y][x] == 'E' && game->textures->exit)
+				else if (game->map->map_array[y][x] == 'E')
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->exit, x * TILE_SIZE, y * TILE_SIZE);
-				else if (game->textures->floor) // Default case: floor
+				else if (game->map->map_array[y][x] == 'M')
+					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->monster, x * TILE_SIZE, y * TILE_SIZE);
+				else if (game->textures->floor)
 					mlx_put_image_to_window(game->mlx->id, game->mlx->win, game->textures->floor, x * TILE_SIZE, y * TILE_SIZE);
 			}
 			x++;
 		}
 		y++;
 	}
+
+	// Draw UI Elements (Collectibles & Lives)
+	char status[100];
+	snprintf(status, sizeof(status), "Collectibles: %d | Lives: %d", game->map->collect_count, game->map->player_lives);
+	mlx_string_put(game->mlx->id, game->mlx->win, 10, 10, 0xFFFFFF, status);
 }

@@ -23,39 +23,40 @@ void free_textures(t_game *game)
     game->textures = NULL;
 }
 
+
 /*
 ** close_game:
-**  - Destroy window if it exists.
-**  - Free textures, map array, the map struct, the mlx struct, and game itself.
-**  - Exit(0).
-**  - Return 0 so it can be used as a callback.
+**  - Stops background music.
+**  - Frees all allocated memory and closes the window.
+**  - Returns 0 for proper MLX callback handling.
 */
 int close_game(t_game *game)
 {
-    if (!game)
-        exit(0);
-    if (game->mlx)
-    {
-        if (game->mlx->win)
-            mlx_destroy_window(game->mlx->id, game->mlx->win);
-        free_textures(game);
-    }
-    if (game->map)
-    {
-        free_map(game->map->map_array);
-        free(game->map);
-        game->map = NULL;
-    }
-    if (game->mlx)
-    {
-        // If needed, we could also do: mlx_destroy_display(game->mlx->id);
-        // but it depends on your system. Then free(game->mlx->id);
-        free(game->mlx);
-        game->mlx = NULL;
-    }
-    free(game);
-    exit(0);
-    return (0);
+	if (!game)
+		exit(0);
+
+	stop_background_music(); // Stop music
+
+	if (game->mlx)
+	{
+		if (game->mlx->win)
+			mlx_destroy_window(game->mlx->id, game->mlx->win);
+		free_textures(game);
+	}
+	if (game->map)
+	{
+		free_map(game->map->map_array);
+		free(game->map);
+		game->map = NULL;
+	}
+	if (game->mlx)
+	{
+		free(game->mlx);
+		game->mlx = NULL;
+	}
+	free(game);
+	exit(0);
+	return (0);
 }
 
 /*
