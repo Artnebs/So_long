@@ -1,140 +1,136 @@
 #include "so_long.h"
 
-/*
-** fill_map_dimensions:
-**  - Removes trailing '\n' if present.
-**  - Sets map_data->height and map_data->width accordingly.
-** Return 1 if okay, 0 if empty map.
-*/
+/* Strip both '\n' and '\r' from line endings, then recalc length */
 static int fill_map_dimensions(t_map *map_data)
 {
-    int i;
-    int len;
+	int i;
+	int len;
 
-    i = 0;
-    while (map_data->map_array && map_data->map_array[i])
-    {
-        len = ft_strlen(map_data->map_array[i]);
-        // Remove trailing newline if present
-        if (len > 0 && map_data->map_array[i][len - 1] == '\n')
-            map_data->map_array[i][len - 1] = '\0';
-        i++;
-    }
-    map_data->height = i;
-    if (map_data->height == 0)
-        return (ft_printf("Error\nEmpty map.\n"), 0);
-    map_data->width = ft_strlen(map_data->map_array[0]);
-    return (1);
+	ft_printf("DEBUG: Filling map dimensions\n");
+	i = 0;
+	while (map_data->map_array[i])
+	{
+		len = ft_strlen(map_data->map_array[i]);
+		ft_printf("DEBUG: Line %d length: %d\n", i, len);
+
+		/* Remove trailing newline and carriage return characters */
+		while (len > 0 &&
+			   (map_data->map_array[i][len - 1] == '\n' ||
+				map_data->map_array[i][len - 1] == '\r'))
+		{
+			map_data->map_array[i][len - 1] = '\0';
+			len--;
+		}
+		i++;
+	}
+	map_data->height = i;
+	if (map_data->height == 0)
+		return (ft_printf("Error\nEmpty map.\n"), 0);
+	map_data->width = ft_strlen(map_data->map_array[0]);
+	ft_printf("DEBUG: Map dimensions - width: %d, height: %d\n",
+			  map_data->width, map_data->height);
+	return (1);
 }
 
-/*
-** check_rectangle:
-**  - Checks that all lines have the same width.
-*/
+/* Check that every line has the same length => rectangle */
 int check_rectangle(t_map *map_data)
 {
-    int i;
-    int first_width;
+	int i;
+	int width;
 
-    first_width = map_data->width;
-    i = 0;
-    while (map_data->map_array[i])
-    {
-        if ((int)ft_strlen(map_data->map_array[i]) != first_width)
-            return (ft_printf("Error\nMap is not rectangular.\n"), 0);
-        i++;
-    }
-    return (1);
+	ft_printf("DEBUG: Checking if map is a rectangle\n");
+	width = ft_strlen(map_data->map_array[0]);
+	i = 1;
+	while (i < map_data->height)
+	{
+		if ((int)ft_strlen(map_data->map_array[i]) != width)
+			return (ft_printf("Error\nMap is not a rectangle.\n"), 0);
+		i++;
+	}
+	return (1);
 }
 
-/*
-** check_walls:
-**  - Ensures first/last row are all '1'.
-**  - Ensures first/last column are all '1'.
-*/
+/* Check that top/bottom/left/right edges are all '1' */
 int check_walls(t_map *map_data)
 {
-    int i;
-    int last_row;
+	int i;
 
-    last_row = map_data->height - 1;
-    i = 0;
-    // Top and bottom row
-    while (i < map_data->width)
-    {
-        if (map_data->map_array[0][i] != '1' || map_data->map_array[last_row][i] != '1')
-            return (ft_printf("Error\nMissing top/bottom walls.\n"), 0);
-        i++;
-    }
-    // Left and right column
-    i = 0;
-    while (i < map_data->height)
-    {
-        if (map_data->map_array[i][0] != '1' || map_data->map_array[i][map_data->width - 1] != '1')
-            return (ft_printf("Error\nMissing side walls.\n"), 0);
-        i++;
-    }
-    return (1);
+	ft_printf("DEBUG: Checking map walls\n");
+	i = 0;
+	while (i < map_data->width)
+	{
+		if (map_data->map_array[0][i] != '1' ||
+			map_data->map_array[map_data->height - 1][i] != '1')
+			return (ft_printf("Error\nMap is not surrounded by walls.\n"), 0);
+		i++;
+	}
+	i = 0;
+	while (i < map_data->height)
+	{
+		if (map_data->map_array[i][0] != '1' ||
+			map_data->map_array[i][map_data->width - 1] != '1')
+			return (ft_printf("Error\nMap is not surrounded by walls.\n"), 0);
+		i++;
+	}
+	return (1);
 }
 
-/*
-** check_chars_count:
-**  - Ensure exactly 1 player P, at least 1 exit E, at least 1 collect C.
-**  - Check for invalid characters (other than 0,1,P,E,C,M).
-*/
+/* Count # of 'P', 'E', 'C' => must be exactly 1 'P', 1 'E', and >=1 'C' */
 int check_chars_count(t_map *map_data)
 {
-    int i;
-    int j;
-    char c;
+	int i;
+	int j;
+	int player_count;
+	int exit_count;
+	int collect_count;
 
-    i = 0;
-    while (i < map_data->height)
-    {
-        j = 0;
-        while (j < map_data->width)
-        {
-            c = map_data->map_array[i][j];
-            if (c == 'P')
-            {
-                map_data->player_count++;
-                map_data->player_x = i;
-                map_data->player_y = j;
-            }
-            else if (c == 'E')
-                map_data->exit_count++;
-            else if (c == 'C')
-                map_data->collect_count++;
-            else if (c != '0' && c != '1' && c != 'M' && c != '\0')
-                return (ft_printf("Error\nInvalid char '%c' in map.\n", c), 0);
-            j++;
-        }
-        i++;
-    }
-    if (map_data->player_count != 1 || map_data->exit_count < 1 || map_data->collect_count < 1)
-        return (ft_printf("Error\nNeed 1P, >=1E, >=1C.\n"), 0);
-    return (1);
+	ft_printf("DEBUG: Checking characters count\n");
+	player_count = 0;
+	exit_count = 0;
+	collect_count = 0;
+	i = 0;
+	while (i < map_data->height)
+	{
+		j = 0;
+		while (j < map_data->width)
+		{
+			if (map_data->map_array[i][j] == 'P')
+			{
+				map_data->player_x = i;
+				map_data->player_y = j;
+				player_count++;
+			}
+			else if (map_data->map_array[i][j] == 'E')
+				exit_count++;
+			else if (map_data->map_array[i][j] == 'C')
+				collect_count++;
+			j++;
+		}
+		i++;
+	}
+	if (player_count != 1 || exit_count != 1 || collect_count < 1)
+		return (ft_printf("Error\nInvalid number of characters.\n"), 0);
+	map_data->player_count = player_count;
+	map_data->exit_count = exit_count;
+	map_data->collect_count = collect_count;
+	return (1);
 }
 
-/*
-** check_map_validity:
-**  - Fills map dimensions (removing trailing newlines).
-**  - Checks rectangle, walls, char counts.
-**  - Then calls check_path() to ensure accessibility.
-*/
+/* Master function to check the map's validity from top to bottom */
 int check_map_validity(t_map *map_data)
 {
-    if (!map_data->map_array)
-        return (ft_printf("Error\nInvalid map array.\n"), 0);
-    if (!fill_map_dimensions(map_data))
-        return (0);
-    if (!check_rectangle(map_data))
-        return (0);
-    if (!check_walls(map_data))
-        return (0);
-    if (!check_chars_count(map_data))
-        return (0);
-    if (!check_path(map_data))
-        return (0);
-    return (1);
+	ft_printf("DEBUG: Checking map validity\n");
+	if (!map_data->map_array)
+		return (ft_printf("Error\nInvalid map array.\n"), 0);
+	if (!fill_map_dimensions(map_data))
+		return (0);
+	if (!check_rectangle(map_data))
+		return (0);
+	if (!check_walls(map_data))
+		return (0);
+	if (!check_chars_count(map_data))
+		return (0);
+	if (!check_path(map_data))
+		return (0);
+	return (1);
 }

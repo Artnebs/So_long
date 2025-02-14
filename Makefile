@@ -6,7 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/10 16:24:22 by anebbou          ###   ########.fr        #
+#    Updated: 2025/02/13 19:18:25 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,9 +38,10 @@ CFLAGS     = -Wall -Wextra -Werror -g \
 # SOURCE & OBJECT FILES
 # ---------------------------------------------------------------------------- #
 SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
-             map_parsing.c map_validation.c player_movement.c \
-             render_map.c so_long.c \
-			 load_default_map.c resize_hook.c
+             main.c map_parsing.c map_validation.c player_movement.c \
+             monster_movement.c music.c texture_utils.c \
+             render_map.c load_default_map.c\
+             resize_hook.c init_window.c
 OBJS       = $(SRCS:.c=.o)
 
 # ---------------------------------------------------------------------------- #
@@ -99,6 +100,7 @@ clean:
 fclean: clean
 	@echo "Removing $(NAME)..."
 	rm -f $(NAME)
+	rm -rf Libft_GNL_Printf
 
 re: fclean all
 
