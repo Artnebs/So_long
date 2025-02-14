@@ -35,6 +35,10 @@ static void draw_tile(t_game *game, int y, int x, int color)
 */
 void put_texture_tile(t_game *game, int y, int x, char c)
 {
+	/* If the tile is our marker for monster on collectible ('m'),
+	   treat it as a monster ('M') for rendering purposes. */
+	if (c == 'm')
+		c = 'M';
 	if (c == '1')
 		mlx_put_image_to_window(game->mlx->id, game->mlx->win,
 								game->textures->wall, x * TILE_SIZE, y * TILE_SIZE);
@@ -72,6 +76,10 @@ void render_tile(t_game *game, int y, int x)
 	}
 
 	c = game->map->map_array[y][x];
+	/* If the tile is 'm' (monster on collectible), treat it as 'M' */
+	if (c == 'm')
+		c = 'M';
+
 	printf("DEBUG: Tile character is '%c'\n", c);
 
 	if (!game->textures)
@@ -81,7 +89,7 @@ void render_tile(t_game *game, int y, int x)
 	}
 
 	/*
-	** If ANY essential texture is missing, we fallback to color drawing
+	** If ANY essential texture is missing, we fallback to color drawing.
 	*/
 	if (!game->textures->wall || !game->textures->player ||
 		!game->textures->collectible || !game->textures->exit ||
@@ -112,7 +120,7 @@ void render_tile(t_game *game, int y, int x)
 /*
 ** render_map:
 **  - Clears window, then draws each cell of map_array.
-**  - Logs debug info and prints the Collectibles/Lives count to the terminal.
+**  - Logs debug info and prints the Moves/Collectibles/Lives count to the terminal.
 */
 void render_map(t_game *game)
 {
@@ -133,8 +141,8 @@ void render_map(t_game *game)
 		}
 		y++;
 	}
-	ft_sprintf(hud, "Collectibles: %d | Lives: %d",
-			   game->map->collect_count, game->map->player_lives);
-
+	/* Updated HUD: now includes Moves, Collectibles, and Lives */
+	ft_sprintf(hud, "Moves: %d | Collectibles: %d | Lives: %d",
+			   game->map->moves, game->map->collect_count, game->map->player_lives);
 	mlx_string_put(game->mlx->id, game->mlx->win, 10, 10, 0xFFFFFF, hud);
 }

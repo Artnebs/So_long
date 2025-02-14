@@ -58,8 +58,7 @@ void load_default_map(t_game *game)
 	if (!map->map_array)
 	{
 		ft_printf("Error: Failed to allocate and copy map\n");
-		free(map);
-		return;
+		return (free(map), (void)0);
 	}
 	map->height = rows;
 	map->width = ft_strlen(map->map_array[0]);
