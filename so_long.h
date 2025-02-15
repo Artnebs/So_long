@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <X11/Xlib.h> // or relevant for Linux
 #include <mlx.h>
-#include "libft.h"		   // For ft_printf, etc.
-#include "get_next_line.h" // If used
+#include "libft.h"           // For ft_printf, etc.
+
 
 /*
 ** KEYCODES - adapt if on Linux or macOS
@@ -28,10 +28,14 @@
 #define KEY_M 109
 #endif
 
+#ifndef HUD_HEIGHT
+#define HUD_HEIGHT 40
+#endif
+
 /*
 ** TILE_SIZE, COLORS
 */
-#define TILE_SIZE 32
+#define TILE_SIZE 64
 #define COLOR_WALL 0xAAAAAA
 #define COLOR_PLAYER 0xFF0000
 #define COLOR_COLLECT 0x0000FF
@@ -55,6 +59,9 @@ typedef struct s_textures
     void *collectible;
     void *exit;
     void *monster;
+    void *hud_moves;
+    void *hud_collect;
+    void *hud_lives;
 } t_textures;
 
 typedef struct s_map
@@ -145,6 +152,7 @@ void respawn_player(t_game *game);
 /* render_map.c */
 void render_map(t_game *game);
 void put_texture_tile(t_game *game, int y, int x, char c);
+void render_hud(t_game *game); // Added function prototype
 
 /* resize_hook.c */
 int resize_hook(int width, int height, t_game *game);

@@ -5,6 +5,8 @@ void free_textures(t_game *game)
 {
 	if (!game->textures)
 		return;
+
+	// Free game textures
 	if (game->textures->wall)
 		mlx_destroy_image(game->mlx->id, game->textures->wall);
 	if (game->textures->floor)
@@ -17,6 +19,15 @@ void free_textures(t_game *game)
 		mlx_destroy_image(game->mlx->id, game->textures->exit);
 	if (game->textures->monster)
 		mlx_destroy_image(game->mlx->id, game->textures->monster);
+
+	// Free HUD Icons
+	if (game->textures->hud_moves)
+		mlx_destroy_image(game->mlx->id, game->textures->hud_moves);
+	if (game->textures->hud_collect)
+		mlx_destroy_image(game->mlx->id, game->textures->hud_collect);
+	if (game->textures->hud_lives)
+		mlx_destroy_image(game->mlx->id, game->textures->hud_lives);
+
 	free(game->textures);
 	game->textures = NULL;
 }
