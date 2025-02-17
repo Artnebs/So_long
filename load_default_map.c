@@ -1,66 +1,97 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   load_default_map.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/15 21:17:22 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
-/* Local helper: read default_map.ber and store in map_array */
-static char **allocate_and_copy_map(char *filename, int *rows)
+static char	**allocate_and_copy_map(char *filename, int *rows)
 {
-    char **map_array;
-    int fd;
-    char *line;
+	char	**map_array;
+	int		fd;
+	char	*line;
+	char	**temp;
 
-    fd = open(filename, O_RDONLY);
-    if (fd < 0)
-    {
-        ft_printf("Error: Failed to open file %s\n", filename);
-        return (NULL);
-    }
-    map_array = NULL;
-    *rows = 0;
-
-    while ((line = get_next_line(fd)))
-    {
-        char **temp = realloc(map_array, sizeof(char *) * (*rows + 2));
-        if (!temp)
-        {
-            ft_printf("Error: Failed to allocate memory for map array\n");
-            free(map_array);
-            close(fd);
-            return NULL;
-        }
-        map_array = temp;
-        map_array[*rows] = line;
-        (*rows)++;
-        map_array[*rows] = NULL;
-    }
-    close(fd);
-    return (map_array);
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+	{
+		ft_printf("Error: Failed to open file %s\n", filename);
+		return (NULL);
+	}
+	map_array = NULL;
+	*rows = 0;
+	line = get_next_line(fd);
+	while (line)
+	{
+		temp = realloc(map_array, sizeof(char *) * (*rows + 2));
+		if (!temp)
+		{
+			ft_printf("Error: Failed to allocate memory for map array\n");
+			free(map_array);
+			close(fd);
+			return (NULL);
+		}
+		map_array = temp;
+		map_array[*rows] = line;
+		(*rows)++;
+		map_array[*rows] = NULL;
+		line = get_next_line(fd);
+	}
+	close(fd);
+	return (map_array);
 }
 
-/*
-** load_default_map:
-**  - Loads a larger default map with monsters (M).
-**  - Player has 3 lives (map->player_lives = 3).
-*/
-void load_default_map(t_game *game)
+void	load_default_map(t_game *game)
 {
-    t_map *map;
-    int rows;
+	t_map	*map;
+	int		rows;
 
-    map = ft_calloc(1, sizeof(t_map));
-    if (!map)
-    {
-        ft_printf("Error: Failed to allocate memory for map struct\n");
-        return;
-    }
-    map->map_array = allocate_and_copy_map("maps/default_map.ber", &rows);
-    if (!map->map_array)
-    {
-        ft_printf("Error: Failed to allocate and copy map\n");
-        return (free(map), (void)0);
-    }
-    map->height = rows;
-    map->width = ft_strlen(map->map_array[0]);
-    map->player_lives = 3;
-    map->spawn_x = 1;
-    map->spawn_y = 1;
-    game->map = map;
+	map = ft_calloc(1, sizeof(t_map));
+	if (!map)
+	{
+		ft_printf("Error: Failed to allocate memory for map struct\n");
+		return ;
+	}
+	map->map_array = allocate_and_copy_map("maps/default_map.ber", &rows);
+	if (!map->map_array)
+	{
+		ft_printf("Error: Failed to allocate and copy map\n");
+		free(map);
+		return ;
+	}
+	map->height = rows;
+	map->width = ft_strlen(map->map_array[0]);
+	map->player_lives = 3;
+	map->spawn_x = 1;
+	map->spawn_y = 1;
+	game->map = map;
+}
+
+/* Count # of 'P', 'E', 'C' => must be exactly 1 'P', 1 'E', and >=1 'C' */
+int check_chars_count(t_map *map_data)
+{
+	int player_count;
+	int exit_count;
+	int collect_count;
+
+	player_count = 0;
+	exit_count = 0;
+	collect_count = 0;
+	count_chars(map_data, &player_count, &exit_count, &collect_count);
+	if (player_count != 1 || exit_count != 1 || collect_count < 1)
+	{
+		ft_printf("Error\nInvalid number of characters.\n");
+		return (0);
+	}
+	map_data->player_count = player_count;
+	map_data->exit_count = exit_count;
+	map_data->collect_count = collect_count;
+	return (1);
 }

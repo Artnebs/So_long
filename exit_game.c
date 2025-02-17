@@ -1,12 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exit_game.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/15 15:19:08 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
-/* Free all textures if they exist */
-void free_textures(t_game *game)
+void	free_textures(t_game *game)
 {
 	if (!game->textures)
-		return;
-
-	// Free game textures
+		return ;
 	if (game->textures->wall)
 		mlx_destroy_image(game->mlx->id, game->textures->wall);
 	if (game->textures->floor)
@@ -19,21 +28,17 @@ void free_textures(t_game *game)
 		mlx_destroy_image(game->mlx->id, game->textures->exit);
 	if (game->textures->monster)
 		mlx_destroy_image(game->mlx->id, game->textures->monster);
-
-	// Free HUD Icons
 	if (game->textures->hud_moves)
 		mlx_destroy_image(game->mlx->id, game->textures->hud_moves);
 	if (game->textures->hud_collect)
 		mlx_destroy_image(game->mlx->id, game->textures->hud_collect);
 	if (game->textures->hud_lives)
 		mlx_destroy_image(game->mlx->id, game->textures->hud_lives);
-
 	free(game->textures);
 	game->textures = NULL;
 }
 
-/* Close the game, free all resources, and exit */
-int close_game(t_game *game)
+int	close_game(t_game *game)
 {
 	if (!game)
 		exit(0);
@@ -57,8 +62,7 @@ int close_game(t_game *game)
 	return (0);
 }
 
-/* Called when you reach 'E' with all collectibles */
-void win_game(t_game *game)
+void	win_game(t_game *game)
 {
 	ft_printf("You win!\n");
 	close_game(game);

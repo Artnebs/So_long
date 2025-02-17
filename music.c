@@ -1,14 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   music.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/15 15:06:58 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
 void play_background_music(void)
 {
-	/* Loop the specified MP3 in the background using mpg123 */
 	system("mpg123 -q --loop -1 " MP3_FILE " &");
 }
 
 void stop_background_music(void)
 {
-	/* Kill mpg123 process */
 	system("pkill -f mpg123");
 }
 

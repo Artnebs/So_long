@@ -1,99 +1,112 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check_path.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
+/*   Updated: 2025/02/15 15:18:00 by anebbou          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 
-/* Local helper: ensure exactly one player is found */
-static int find_player_pos(t_map *map_data, int *p_x, int *p_y)
+static int	find_player_pos(t_map *map_data, int *p_x, int *p_y)
 {
-    if (map_data->player_count != 1)
-        return (ft_printf("Error\nNo valid player found.\n"), 0);
-    *p_x = map_data->player_x;
-    *p_y = map_data->player_y;
-    return (1);
+	if (map_data->player_count != 1)
+	{
+		ft_printf("Error\nNo valid player found.\n");
+		return (0);
+	}
+	*p_x = map_data->player_x;
+	*p_y = map_data->player_y;
+	return (1);
 }
 
-/* Local helper: duplicate the map so we can flood fill it */
-static char **duplicate_map(char **map_array, int height)
+static char	**duplicate_map(char **map_array, int height)
 {
-    char **copy;
-    int i;
+	char	**copy;
+	int		i;
 
-    copy = malloc(sizeof(char *) * (height + 1));
-    if (!copy)
-        return (NULL);
-    i = 0;
-    while (i < height)
-    {
-        copy[i] = ft_strdup(map_array[i]);
-        if (!copy[i])
-        {
-            free_map(copy);
-            return (NULL);
-        }
-        i++;
-    }
-    copy[i] = NULL;
-    return (copy);
+	copy = malloc(sizeof(char *) * (height + 1));
+	if (!copy)
+		return (NULL);
+	i = 0;
+	while (i < height)
+	{
+		copy[i] = ft_strdup(map_array[i]);
+		if (!copy[i])
+		{
+			free_map(copy);
+			return (NULL);
+		}
+		i++;
+	}
+	copy[i] = NULL;
+	return (copy);
 }
 
-/* Recursive flood fill to mark reachable tiles */
-static void flood_fill(char **map_copy, int x, int y, t_map *map_data)
+static void	flood_fill(char **map_copy, int x, int y, t_map *map_data)
 {
-    if (y < 0 || x < 0 || y >= map_data->width || x >= map_data->height)
-        return;
-    if (map_copy[x][y] == '1' || map_copy[x][y] == 'X')
-        return;
-    map_copy[x][y] = 'X';
-    flood_fill(map_copy, x - 1, y, map_data);
-    flood_fill(map_copy, x + 1, y, map_data);
-    flood_fill(map_copy, x, y - 1, map_data);
-    flood_fill(map_copy, x, y + 1, map_data);
+	if (y < 0 || x < 0 || y >= map_data->width || x >= map_data->height)
+		return ;
+	if (map_copy[x][y] == '1' || map_copy[x][y] == 'X')
+		return ;
+	map_copy[x][y] = 'X';
+	flood_fill(map_copy, x - 1, y, map_data);
+	flood_fill(map_copy, x + 1, y, map_data);
+	flood_fill(map_copy, x, y - 1, map_data);
+	flood_fill(map_copy, x, y + 1, map_data);
 }
 
-/* Verify all 'C' and 'E' tiles are reachable (flood-filled) */
-static int verify_reachable(char **map_copy, t_map *map_data)
+static int	verify_reachable(char **map_copy, t_map *map_data)
 {
-    int i;
-    int j;
+	int	i;
+	int	j;
 
-    i = 0;
-    while (i < map_data->height)
-    {
-        j = 0;
-        while (j < map_data->width)
-        {
-            if (map_data->map_array[i][j] == 'C' ||
-                map_data->map_array[i][j] == 'E')
-            {
-                if (map_copy[i][j] != 'X')
-                    return (ft_printf("Error\nUnreachable C/E at (%d,%d).\n",
-                                      i, j),
-                            0);
-            }
-            j++;
-        }
-        i++;
-    }
-    return (1);
+	i = 0;
+	while (i < map_data->height)
+	{
+		j = 0;
+		while (j < map_data->width)
+		{
+			if (map_data->map_array[i][j] == 'C'
+					|| map_data->map_array[i][j] == 'E')
+			{
+				if (map_copy[i][j] != 'X')
+				{
+					ft_printf("Error\nUnreachable C/E at (%d,%d).\n", i, j);
+					return (0);
+				}
+			}
+			j++;
+		}
+		i++;
+	}
+	return (1);
 }
 
-/* Public function: check if there's a valid path to all 'C' and 'E' */
-int check_path(t_map *map_data)
+int	check_path(t_map *map_data)
 {
-    char **map_copy;
-    int p_x;
-    int p_y;
+	char	**map_copy;
+	int		p_x;
+	int		p_y;
 
-    if (!find_player_pos(map_data, &p_x, &p_y))
-        return (0);
-
-    map_copy = duplicate_map(map_data->map_array, map_data->height);
-    if (!map_copy)
-        return (ft_printf("Error\nFailed to copy map.\n"), 0);
-
-    flood_fill(map_copy, p_x, p_y, map_data);
-
-    if (!verify_reachable(map_copy, map_data))
-        return (free_map(map_copy), 0);
-
-    free_map(map_copy);
-    return (1);
+	if (!find_player_pos(map_data, &p_x, &p_y))
+		return (0);
+	map_copy = duplicate_map(map_data->map_array, map_data->height);
+	if (!map_copy)
+	{
+		ft_printf("Error\nFailed to copy map.\n");
+		return (0);
+	}
+	flood_fill(map_copy, p_x, p_y, map_data);
+	if (!verify_reachable(map_copy, map_data))
+	{
+		free_map(map_copy);
+		return (0);
+	}
+	free_map(map_copy);
+	return (1);
 }
