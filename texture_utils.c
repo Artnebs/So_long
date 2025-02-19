@@ -6,16 +6,16 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:39:07 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/19 17:50:34 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-void check_textures(t_game *game)
+void	check_textures(t_game *game)
 {
 	if (!game->textures)
-		return;
+		return ;
 	if (!game->textures->wall)
 		ft_printf("ERROR: Missing texture: wall\n");
 	if (!game->textures->player)
@@ -29,13 +29,14 @@ void check_textures(t_game *game)
 	if (!game->textures->monster)
 		ft_printf("ERROR: Missing texture: monster\n");
 }
+
 /* Free a map array */
-void free_map(char **map_array)
+void	free_map(char **map_array)
 {
-	int i;
+	int	i;
 
 	if (!map_array)
-		return;
+		return ;
 	i = 0;
 	while (map_array[i])
 	{

@@ -6,13 +6,13 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:14:30 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/19 17:48:43 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-int resize_hook(int width, int height, t_game *game)
+int	resize_hook(int width, int height, t_game *game)
 {
 	if (width < 100 || height < 100)
 		return (0);

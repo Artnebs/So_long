@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 21:18:16 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/19 17:49:41 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <stdio.h>
-# include <X11/Xlib.h> // or relevant for Linux
+# include <X11/Xlib.h>
 # include <mlx.h>
-# include "libft.h"           // For ft_printf, etc.
+# include "libft.h"
 
 /*
 ** KEYCODES - adapt if on Linux or macOS
@@ -64,47 +64,47 @@
 */
 typedef struct s_textures
 {
-    void	*wall;
-    void	*floor;
-    void	*player;
-    void	*collectible;
-    void	*exit;
-    void	*monster;
-    void	*hud_moves;
-    void	*hud_collect;
-    void	*hud_lives;
+	void	*wall;
+	void	*floor;
+	void	*player;
+	void	*collectible;
+	void	*exit;
+	void	*monster;
+	void	*hud_moves;
+	void	*hud_collect;
+	void	*hud_lives;
 }	t_textures;
 
 typedef struct s_map
 {
-    char	**map_array;
-    int		width;
-    int		height;
-    int		player_count;
-    int		exit_count;
-    int		collect_count;
-    int		player_x;
-    int		player_y;
-    int		player_lives;
-    int		moves;
-    int		spawn_x; // Added spawn_x
-    int		spawn_y; // Added spawn_y
+	char	**map_array;
+	int		width;
+	int		height;
+	int		player_count;
+	int		exit_count;
+	int		collect_count;
+	int		player_x;
+	int		player_y;
+	int		player_lives;
+	int		moves;
+	int		spawn_x;
+	int		spawn_y;
 }	t_map;
 
 typedef struct s_mlx
 {
-    void	*id;
-    void	*win;
-    int		win_width;
-    int		win_height;
+	void	*id;
+	void	*win;
+	int		win_width;
+	int		win_height;
 }	t_mlx;
 
 typedef struct s_game
 {
-    t_mlx		*mlx;
-    t_map		*map;
-    t_textures	*textures;
-    int			mute; // Added mute flag for music
+	t_mlx		*mlx;
+	t_map		*map;
+	t_textures	*textures;
+	int			mute;
 }	t_game;
 
 /*
@@ -147,7 +147,8 @@ int		check_walls(t_map *map_data);
 int		check_chars_count(t_map *map_data);
 
 /* count_chars.c */
-void	count_chars(t_map *map_data, int *player_count, int *exit_count, int *collect_count);
+void	count_chars(t_map *map_data, int *player_count, int *exit_count,
+			int *collect_count);
 
 /* monster_movement.c */
 void	move_monsters(t_game *game);

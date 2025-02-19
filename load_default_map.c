@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 21:17:22 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/19 17:35:32 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,26 +72,4 @@ void	load_default_map(t_game *game)
 	map->spawn_x = 1;
 	map->spawn_y = 1;
 	game->map = map;
-}
-
-/* Count # of 'P', 'E', 'C' => must be exactly 1 'P', 1 'E', and >=1 'C' */
-int check_chars_count(t_map *map_data)
-{
-	int player_count;
-	int exit_count;
-	int collect_count;
-
-	player_count = 0;
-	exit_count = 0;
-	collect_count = 0;
-	count_chars(map_data, &player_count, &exit_count, &collect_count);
-	if (player_count != 1 || exit_count != 1 || collect_count < 1)
-	{
-		ft_printf("Error\nInvalid number of characters.\n");
-		return (0);
-	}
-	map_data->player_count = player_count;
-	map_data->exit_count = exit_count;
-	map_data->collect_count = collect_count;
-	return (1);
 }
