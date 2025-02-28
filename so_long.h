@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:49:41 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:52:21 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,8 @@ void	win_game(t_game *game);
 
 /* init_mlx.c */
 int		init_mlx(t_game *game);
+
+/* init_window.c */
 int		init_window(t_game *game);
 
 /* load_default_map.c */
@@ -152,6 +154,14 @@ void	count_chars(t_map *map_data, int *player_count, int *exit_count,
 
 /* monster_movement.c */
 void	move_monsters(t_game *game);
+void	move_monster(t_game *game, int x, int y);
+
+/* monster_helpers.c */
+int		is_movable(t_game *game, int x, int y);
+int		collect_valid_directions(t_game *game, int x, int y, int dirs[4]);
+void	update_coordinates(int direction, int *nx, int *ny);
+void	update_monster_position(t_game *game, int x, int y, int direction);
+void	clear_old_tile(t_game *game, int x, int y, char dest);
 
 /* music.c */
 void	play_background_music(void);
@@ -166,8 +176,13 @@ void	respawn_player(t_game *game);
 
 /* render_map.c */
 void	render_map(t_game *game);
+
+/* render_tile.c */
 void	put_texture_tile(t_game *game, int y, int x, char c);
-void	render_hud(t_game *game); // Added function prototype
+void	render_tile(t_game *game, int y, int x);
+
+/* render_hud.c */
+void	render_hud(t_game *game);
 
 /* resize_hook.c */
 int		resize_hook(int width, int height, t_game *game);

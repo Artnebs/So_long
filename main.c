@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:30:55 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:04:53 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,7 @@ static int	init_all(t_game *game, int argc, char **argv)
 			return (1);
 	}
 	else
-	{
 		load_default_map(game);
-	}
 	if (!check_map_validity(game->map))
 		return (1);
 	if (init_window(game))

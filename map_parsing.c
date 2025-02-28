@@ -6,13 +6,12 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:39:37 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:17:13 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-/* Copy the old map pointers into the newly allocated array */
 static void	copy_old_map(char **old_map, char **new_map, int count)
 {
 	int	i;
@@ -25,9 +24,8 @@ static void	copy_old_map(char **old_map, char **new_map, int count)
 	}
 }
 
-/* Helper function to allocate and copy map */
 static char	**allocate_and_copy_map(char **map, char **temp,
-		int count, char *line)
+									int count, char *line)
 {
 	map = malloc(sizeof(char *) * (count + 2));
 	if (!map)
@@ -42,7 +40,6 @@ static char	**allocate_and_copy_map(char **map, char **temp,
 	return (map);
 }
 
-/* Read a map file line by line into a NULL-terminated char** */
 char	**read_map_file(char *filename)
 {
 	int		fd;
@@ -70,7 +67,6 @@ char	**read_map_file(char *filename)
 	return (map);
 }
 
-/* Helper function to set map dimensions */
 static int	set_map_dimensions(t_game *game)
 {
 	game->map->height = 0;
@@ -88,7 +84,6 @@ static int	set_map_dimensions(t_game *game)
 	return (1);
 }
 
-/* Parse the map from filename into game->map->map_array, set height/width */
 int	parse_map(t_game *game, char *filename)
 {
 	game->map = ft_calloc(1, sizeof(t_map));

@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:21:23 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:00:41 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,8 @@ int	init_window(t_game *game)
 		game->mlx->win_width = screen_width;
 	if (game->mlx->win_height > screen_height)
 		game->mlx->win_height = screen_height;
-	game->mlx->win = mlx_new_window(
-			game->mlx->id,
-			game->mlx->win_width,
-			game->mlx->win_height,
-			"so_long");
+	game->mlx->win = mlx_new_window(game->mlx->id,
+			game->mlx->win_width, game->mlx->win_height, "so_long");
 	if (!game->mlx->win)
 	{
 		ft_printf("Error\nFailed to create window.\n");

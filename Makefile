@@ -6,15 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/14 10:42:47 by anebbou          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-#                                                     +:+ +:+         +:+      #
-#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/14 10:41:31 by anebbou          ###   ########.fr        #
+#    Updated: 2025/02/28 13:35:30 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,24 +25,26 @@ LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
 MLX_DIR    = minilibx-linux
 MLX_LIB    = $(MLX_DIR)/libmlx.a
 
+OBJ_DIR    = objs
+SRC_DIR    = .
+
 # ---------------------------------------------------------------------------- #
 # COMPILER & FLAGS
 # ---------------------------------------------------------------------------- #
 CC         = gcc
-CFLAGS     = -Wall -Wextra -Werror -g \
-			 -I. \
-			 -I$(LIBFT_DIR)/includes \
-			 -I$(MLX_DIR)
+CFLAGS     = -Wall -Wextra -Werror -g
+INCLUDES   = -I. -I$(LIBFT_DIR)/includes -I$(MLX_DIR)
 
 # ---------------------------------------------------------------------------- #
 # SOURCE & OBJECT FILES
 # ---------------------------------------------------------------------------- #
 SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
-			 main.c map_parsing.c map_validation.c player_movement.c \
-			 monster_movement.c music.c texture_utils.c \
-			 render_map.c load_default_map.c\
-			 resize_hook.c init_window.c
-OBJS       = $(SRCS:.c=.o)
+			 resize_hook.c init_window.c main.c map_parsing.c \
+			 map_validation.c monster_movement.c music.c \
+			 player_movement.c player_events.c render_map.c monster_helpers.c \
+			 render_tile.c render_hud.c load_default_map.c texture_utils.c 
+
+OBJS       = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 # ---------------------------------------------------------------------------- #
 # DEFAULT RULE
@@ -58,293 +52,58 @@ OBJS       = $(SRCS:.c=.o)
 all: $(NAME)
 
 # ---------------------------------------------------------------------------- #
-# BUILD so_long
+# CREATE OBJ DIRECTORY
 # ---------------------------------------------------------------------------- #
-$(NAME): $(LIBFT) $(MLX_LIB) $(OBJS)
-	@echo "Linking $(NAME)..."
-	$(CC) $(CFLAGS) $(OBJS) \
-		-L$(LIBFT_DIR) -lft \
-		-L$(MLX_DIR) -lmlx -lm -lXext -lX11 \
-		# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/14 10:41:31 by anebbou          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
 # ---------------------------------------------------------------------------- #
-# PROGRAM NAME
+# COMPILE RULE FOR .c TO .o
 # ---------------------------------------------------------------------------- #
-NAME       = so_long
-
-# ---------------------------------------------------------------------------- #
-# DIRECTORIES & LIBRARIES
-# ---------------------------------------------------------------------------- #
-LIBFT_DIR  = Libft_GNL_Printf
-LIBFT      = $(LIBFT_DIR)/libft.a
-LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
-
-MLX_DIR    = minilibx-linux
-MLX_LIB    = $(MLX_DIR)/libmlx.a
-
-# ---------------------------------------------------------------------------- #
-# COMPILER & FLAGS
-# ---------------------------------------------------------------------------- #
-CC         = gcc
-CFLAGS     = -Wall -Wextra -Werror -g \
-			 -I. \
-			 -I$(LIBFT_DIR)/includes \
-			 -I$(MLX_DIR)
-
-# ---------------------------------------------------------------------------- #
-# SOURCE & OBJECT FILES
-# ---------------------------------------------------------------------------- #
-SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
-			 main.c map_parsing.c map_validation.c player_movement.c \
-			 monster_movement.c music.c texture_utils.c \
-			 render_map.c load_default_map.c\
-			 resize_hook.c init_window.c
-OBJS       = $(SRCS:.c=.o)
-
-# ---------------------------------------------------------------------------- #
-# DEFAULT RULE
-# ---------------------------------------------------------------------------- #
-all: $(NAME)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # ---------------------------------------------------------------------------- #
 # BUILD so_long
 # ---------------------------------------------------------------------------- #
 $(NAME): $(LIBFT) $(MLX_LIB) $(OBJS)
-	@echo "Linking $(NAME)..."
-	$(CC) $(CFLAGS) $(OBJS) \
-		-L$(LIBFT_DIR) -lft \
-		-L$(MLX_DIR) -lmlx -lm -lXext -lX11 \
-				# **************************************************************************** #
-		#                                                                              #
-		#                                                         :::      ::::::::    #
-		#    Makefile                                           :+:      :+:    :+:    #
-		#                                                     +:+ +:+         +:+      #
-		#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
-		#                                                 +#+#+#+#+#+   +#+            #
-		#    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-		#    Updated: 2025/02/14 10:41:31 by anebbou          ###   ########.fr        #
-		#                                                                              #
-		# **************************************************************************** #
-		
-		# ---------------------------------------------------------------------------- #
-		# PROGRAM NAME
-		# ---------------------------------------------------------------------------- #
-		NAME       = so_long
-		
-		# ---------------------------------------------------------------------------- #
-		# DIRECTORIES & LIBRARIES
-		# ---------------------------------------------------------------------------- #
-		LIBFT_DIR  = Libft_GNL_Printf
-		LIBFT      = $(LIBFT_DIR)/libft.a
-		LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
-		
-		MLX_DIR    = minilibx-linux
-		MLX_LIB    = $(MLX_DIR)/libmlx.a
-		
-		# ---------------------------------------------------------------------------- #
-		# COMPILER & FLAGS
-		# ---------------------------------------------------------------------------- #
-		CC         = gcc
-		CFLAGS     = -Wall -Wextra -Werror -g \
-					 -I. \
-					 -I$(LIBFT_DIR)/includes \
-					 -I$(MLX_DIR)
-		
-		# ---------------------------------------------------------------------------- #
-		# SOURCE & OBJECT FILES
-		# ---------------------------------------------------------------------------- #
-		SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
-					 main.c map_parsing.c map_validation.c player_movement.c \
-					 monster_movement.c music.c texture_utils.c \
-					 render_map.c load_default_map.c\
-					 resize_hook.c init_window.c
-		OBJS       = $(SRCS:.c=.o)
-		
-		# ---------------------------------------------------------------------------- #
-		# DEFAULT RULE
-		# ---------------------------------------------------------------------------- #
-		all: $(NAME)
-		
-		# ---------------------------------------------------------------------------- #
-		# BUILD so_long
-		# ---------------------------------------------------------------------------- #
-		$(NAME): $(LIBFT) $(MLX_LIB) $(OBJS)
-			@echo "Linking $(NAME)..."
-			$(CC) $(CFLAGS) $(OBJS) \
-				-L$(LIBFT_DIR) -lft \
-				-L$(MLX_DIR) -lmlx -lm -lXext -lX11 \
-				# **************************************************************************** #
-		#                                                                              #
-		#                                                         :::      ::::::::    #
-		#    Makefile                                           :+:      :+:    :+:    #
-		#                                                     +:+ +:+         +:+      #
-		#    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
-		#                                                 +#+#+#+#+#+   +#+            #
-		#    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-		#    Updated: 2025/02/14 10:41:31 by anebbou          ###   ########.fr        #
-		#                                                                              #
-		# **************************************************************************** #
-		
-		# ---------------------------------------------------------------------------- #
-		# PROGRAM NAME
-		# ---------------------------------------------------------------------------- #
-		NAME       = so_long
-		
-		# ---------------------------------------------------------------------------- #
-		# DIRECTORIES & LIBRARIES
-		# ---------------------------------------------------------------------------- #
-		LIBFT_DIR  = Libft_GNL_Printf
-		LIBFT      = $(LIBFT_DIR)/libft.a
-		LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
-		
-		MLX_DIR    = minilibx-linux
-		MLX_LIB    = $(MLX_DIR)/libmlx.a
-		
-		# ---------------------------------------------------------------------------- #
-		# COMPILER & FLAGS
-		# ---------------------------------------------------------------------------- #
-		CC         = gcc
-		CFLAGS     = -Wall -Wextra -Werror -g \
-					 -I. \
-					 -I$(LIBFT_DIR)/includes \
-					 -I$(MLX_DIR)
-		
-		# ---------------------------------------------------------------------------- #
-		# SOURCE & OBJECT FILES
-		# ---------------------------------------------------------------------------- #
-		SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
-					 main.c map_parsing.c map_validation.c player_movement.c \
-					 monster_movement.c music.c texture_utils.c \
-					 render_map.c load_default_map.c\
-					 resize_hook.c init_window.c
-		OBJS       = $(SRCS:.c=.o)
-		
-		# ---------------------------------------------------------------------------- #
-		# DEFAULT RULE
-		# ---------------------------------------------------------------------------- #
-		all: $(NAME)
-		
-		# ---------------------------------------------------------------------------- #
-		# BUILD so_long
-		# ---------------------------------------------------------------------------- #
-		$(NAME): $(LIBFT) $(MLX_LIB) $(OBJS)
-			@echo "Linking $(NAME)..."
-			$(CC) $(CFLAGS) $(OBJS) \
-				-L$(LIBFT_DIR) -lft \
-				-L$(MLX_DIR) -lmlx -lm -lXext -lX11 \
-				#    Updated: 2025/02/14 10:41:31 by anebbou          ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
+	$(CC) $(CFLAGS) $(OBJS) -L$(LIBFT_DIR) -lft -L$(MLX_DIR) -lmlx \
+		-lm -lXext -lX11 -o $(NAME)
 
 # ---------------------------------------------------------------------------- #
-# PROGRAM NAME
-# ---------------------------------------------------------------------------- #
-NAME       = so_long
-
-# ---------------------------------------------------------------------------- #
-# DIRECTORIES & LIBRARIES
-# ---------------------------------------------------------------------------- #
-LIBFT_DIR  = Libft_GNL_Printf
-LIBFT      = $(LIBFT_DIR)/libft.a
-LIBFT_REPO = https://github.com/Artnebs/Libft_GNL_Printf.git
-
-MLX_DIR    = minilibx-linux
-MLX_LIB    = $(MLX_DIR)/libmlx.a
-
-# ---------------------------------------------------------------------------- #
-# COMPILER & FLAGS
-# ---------------------------------------------------------------------------- #
-CC         = gcc
-CFLAGS     = -Wall -Wextra -Werror -g \
-			 -I. \
-			 -I$(LIBFT_DIR)/includes \
-			 -I$(MLX_DIR)
-
-# ---------------------------------------------------------------------------- #
-# SOURCE & OBJECT FILES
-# ---------------------------------------------------------------------------- #
-SRCS       = check_path.c exit_game.c init_mlx.c load_textures.c \
-			 main.c map_parsing.c map_validation.c player_movement.c \
-			 monster_movement.c music.c texture_utils.c \
-			 render_map.c load_default_map.c\
-			 resize_hook.c init_window.c
-OBJS       = $(SRCS:.c=.o)
-
-# ---------------------------------------------------------------------------- #
-# DEFAULT RULE
-# ---------------------------------------------------------------------------- #
-all: $(NAME)
-
-# ---------------------------------------------------------------------------- #
-# BUILD so_long
-# ---------------------------------------------------------------------------- #
-$(NAME): $(LIBFT) $(MLX_LIB) $(OBJS)
-	@echo "Linking $(NAME)..."
-	$(CC) $(CFLAGS) $(OBJS) \
-		-L$(LIBFT_DIR) -lft \
-		-L$(MLX_DIR) -lmlx -lm -lXext -lX11 \
-		-o $(NAME)
-
-# ---------------------------------------------------------------------------- #
-# COMPILE .c -> .o
-# ---------------------------------------------------------------------------- #
-%.o: %.c
-	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# ---------------------------------------------------------------------------- #
-# BUILD LIBFT (CLONE IF NEEDED)
+# BUILD LIBFT
 # ---------------------------------------------------------------------------- #
 $(LIBFT):
-	@if [ ! -d "$(LIBFT_DIR)" ]; then \
-		echo "Cloning Libft repository..."; \
-		git clone $(LIBFT_REPO) $(LIBFT_DIR); \
-	fi
-	@echo "Building Libft library..."
+	git clone $(LIBFT_REPO) $(LIBFT_DIR) || true
 	make -C $(LIBFT_DIR)
 
 # ---------------------------------------------------------------------------- #
 # BUILD MINILIBX
 # ---------------------------------------------------------------------------- #
 $(MLX_LIB):
-	@echo "Building MiniLibX..."
 	make -C $(MLX_DIR)
 
 # ---------------------------------------------------------------------------- #
-# CLEAN RULES
+# CLEAN OBJECT FILES
 # ---------------------------------------------------------------------------- #
 clean:
-	@echo "Cleaning object files..."
-	rm -f $(OBJS)
-	@if [ -d "$(LIBFT_DIR)" ]; then \
-		make clean -C $(LIBFT_DIR); \
-	fi
-	@if [ -d "$(MLX_DIR)" ]; then \
-		make clean -C $(MLX_DIR); \
-	fi
+	rm -rf $(OBJ_DIR)
+	make -C $(LIBFT_DIR) clean
+	make -C $(MLX_DIR) clean
 
+# ---------------------------------------------------------------------------- #
+# CLEAN ALL GENERATED FILES + REMOVE LIBFT DIRECTORY
+# ---------------------------------------------------------------------------- #
 fclean: clean
-	@echo "Removing $(NAME)..."
 	rm -f $(NAME)
-	rm -rf Libft_GNL_Printf
+	rm -rf $(LIBFT_DIR)
 
+# ---------------------------------------------------------------------------- #
+# REBUILD FROM SCRATCH
+# ---------------------------------------------------------------------------- #
 re: fclean all
 
 # ---------------------------------------------------------------------------- #
-# DEBUG RULES
+# PHONY TARGETS
 # ---------------------------------------------------------------------------- #
-debug: fclean
-	@echo "Compiling with debug symbols (-g)..."
-	$(MAKE) CFLAGS="-Wall -Wextra -Werror -g" all
-
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re

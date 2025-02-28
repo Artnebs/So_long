@@ -6,13 +6,12 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:39:39 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:19:33 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-/* Strip both '\n' and '\r' from line endings, then recalc length */
 static int	fill_map_dimensions(t_map *map_data)
 {
 	int	i;
@@ -22,8 +21,7 @@ static int	fill_map_dimensions(t_map *map_data)
 	while (map_data->map_array[i])
 	{
 		len = ft_strlen(map_data->map_array[i]);
-		while (len > 0
-			&& (map_data->map_array[i][len - 1] == '\n'
+		while (len > 0 && (map_data->map_array[i][len - 1] == '\n'
 			|| map_data->map_array[i][len - 1] == '\r'))
 		{
 			map_data->map_array[i][len - 1] = '\0';
@@ -41,7 +39,6 @@ static int	fill_map_dimensions(t_map *map_data)
 	return (1);
 }
 
-/* Check that every line has the same length => rectangle */
 int	check_rectangle(t_map *map_data)
 {
 	int	i;
@@ -61,7 +58,6 @@ int	check_rectangle(t_map *map_data)
 	return (1);
 }
 
-/* Check that top/bottom/left/right edges are all '1' */
 int	check_walls(t_map *map_data)
 {
 	int	i;
@@ -69,8 +65,8 @@ int	check_walls(t_map *map_data)
 	i = 0;
 	while (i < map_data->width)
 	{
-		if (map_data->map_array[0][i] != '1' ||
-			map_data->map_array[map_data->height - 1][i] != '1')
+		if (map_data->map_array[0][i] != '1'
+			|| map_data->map_array[map_data->height - 1][i] != '1')
 		{
 			ft_printf("Error\nMap is not surrounded by walls.\n");
 			return (0);
@@ -80,8 +76,8 @@ int	check_walls(t_map *map_data)
 	i = 0;
 	while (i < map_data->height)
 	{
-		if (map_data->map_array[i][0] != '1' ||
-			map_data->map_array[i][map_data->width - 1] != '1')
+		if (map_data->map_array[i][0] != '1'
+			|| map_data->map_array[i][map_data->width - 1] != '1')
 		{
 			ft_printf("Error\nMap is not surrounded by walls.\n");
 			return (0);
@@ -91,7 +87,6 @@ int	check_walls(t_map *map_data)
 	return (1);
 }
 
-/* Count # of 'P', 'E', 'C' => must be exactly 1 'P', 1 'E', and >=1 'C' */
 int	check_chars_count(t_map *map_data)
 {
 	int	player_count;
@@ -113,36 +108,6 @@ int	check_chars_count(t_map *map_data)
 	return (1);
 }
 
-/* Helper function to count characters */
-void	count_chars(t_map *map_data, int *player_count, int *exit_count
-	, int *collect_count)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	while (i < map_data->height)
-	{
-		j = 0;
-		while (j < map_data->width)
-		{
-			if (map_data->map_array[i][j] == 'P')
-			{
-				map_data->player_x = i;
-				map_data->player_y = j;
-				(*player_count)++;
-			}
-			else if (map_data->map_array[i][j] == 'E')
-				(*exit_count)++;
-			else if (map_data->map_array[i][j] == 'C')
-				(*collect_count)++;
-			j++;
-		}
-		i++;
-	}
-}
-
-/* Master function to check the map's validity from top to bottom */
 int	check_map_validity(t_map *map_data)
 {
 	if (!map_data->map_array)

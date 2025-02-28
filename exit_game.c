@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:19:08 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:11:53 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,13 +50,9 @@ int	close_game(t_game *game)
 	{
 		free_map(game->map->map_array);
 		free(game->map);
-		game->map = NULL;
 	}
 	if (game->mlx)
-	{
 		free(game->mlx);
-		game->mlx = NULL;
-	}
 	free(game);
 	exit(0);
 	return (0);

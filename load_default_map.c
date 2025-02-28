@@ -6,18 +6,36 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:35:32 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:18:13 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
+
+static char	**append_line(char **map_array, int *rows, char *line, int fd)
+{
+	char	**temp;
+
+	temp = realloc(map_array, sizeof(char *) * (*rows + 2));
+	if (!temp)
+	{
+		ft_printf("Error: Failed to allocate memory for map array\n");
+		free(map_array);
+		close(fd);
+		return (NULL);
+	}
+	map_array = temp;
+	map_array[*rows] = line;
+	(*rows)++;
+	map_array[*rows] = NULL;
+	return (map_array);
+}
 
 static char	**allocate_and_copy_map(char *filename, int *rows)
 {
 	char	**map_array;
 	int		fd;
 	char	*line;
-	char	**temp;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
@@ -30,18 +48,9 @@ static char	**allocate_and_copy_map(char *filename, int *rows)
 	line = get_next_line(fd);
 	while (line)
 	{
-		temp = realloc(map_array, sizeof(char *) * (*rows + 2));
-		if (!temp)
-		{
-			ft_printf("Error: Failed to allocate memory for map array\n");
-			free(map_array);
-			close(fd);
+		map_array = append_line(map_array, rows, line, fd);
+		if (!map_array)
 			return (NULL);
-		}
-		map_array = temp;
-		map_array[*rows] = line;
-		(*rows)++;
-		map_array[*rows] = NULL;
 		line = get_next_line(fd);
 	}
 	close(fd);

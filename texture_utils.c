@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:50:34 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:03:01 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void	check_textures(t_game *game)
 		ft_printf("ERROR: Missing texture: monster\n");
 }
 
-/* Free a map array */
 void	free_map(char **map_array)
 {
 	int	i;
@@ -44,4 +43,32 @@ void	free_map(char **map_array)
 		i++;
 	}
 	free(map_array);
+}
+
+void	count_chars(t_map *map_data, int *player_count,
+	int *exit_count, int *collect_count)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < map_data->height)
+	{
+		j = 0;
+		while (j < map_data->width)
+		{
+			if (map_data->map_array[i][j] == 'P')
+			{
+				map_data->player_x = i;
+				map_data->player_y = j;
+				(*player_count)++;
+			}
+			else if (map_data->map_array[i][j] == 'E')
+				(*exit_count)++;
+			else if (map_data->map_array[i][j] == 'C')
+				(*collect_count)++;
+			j++;
+		}
+		i++;
+	}
 }

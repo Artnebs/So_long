@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/19 17:39:28 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 13:06:44 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,7 @@ int	load_textures(t_game *game)
 	game->textures->player = load_texture(game->mlx->id, "textures/player.xpm");
 	game->textures->collectible = load_texture(game->mlx->id,
 			"textures/collectible.xpm");
-	game->textures->exit = load_texture(game->mlx->id,
-			"textures/exit.xpm");
+	game->textures->exit = load_texture(game->mlx->id, "textures/exit.xpm");
 	game->textures->monster = load_texture(game->mlx->id,
 			"textures/monster.xpm");
 	game->textures->hud_moves = load_texture(game->mlx->id,
@@ -44,9 +43,5 @@ int	load_textures(t_game *game)
 			"textures/hud_collect.xpm");
 	game->textures->hud_lives = load_texture(game->mlx->id,
 			"textures/hud_lives.xpm");
-	if (!game->textures->wall && !game->textures->floor
-		&& !game->textures->player && !game->textures->collectible
-		&& !game->textures->exit && !game->textures->monster)
-		ft_printf("Warning\nAll textures failed to load\n");
 	return (0);
 }

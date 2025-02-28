@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/15 15:18:00 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/02/28 12:59:58 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static char	**duplicate_map(char **map_array, int height)
 
 static void	flood_fill(char **map_copy, int x, int y, t_map *map_data)
 {
-	if (y < 0 || x < 0 || y >= map_data->width || x >= map_data->height)
+	if (x < 0 || y < 0 || x >= map_data->height || y >= map_data->width)
 		return ;
 	if (map_copy[x][y] == '1' || map_copy[x][y] == 'X')
 		return ;
