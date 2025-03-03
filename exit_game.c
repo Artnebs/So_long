@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/28 13:11:53 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/03/03 11:41:24 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,11 @@ int	close_game(t_game *game)
 		free(game->map);
 	}
 	if (game->mlx)
+	{
+		mlx_destroy_display(game->mlx->id);
+		free(game->mlx->id);
 		free(game->mlx);
+	}
 	free(game);
 	exit(0);
 	return (0);

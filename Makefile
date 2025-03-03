@@ -6,7 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/02/28 13:35:30 by anebbou          ###   ########.fr        #
+#    Updated: 2025/03/03 11:36:33 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -104,6 +104,21 @@ fclean: clean
 re: fclean all
 
 # ---------------------------------------------------------------------------- #
+# DEBUG MODE (WITH MINILIBX, WITH SANITIZER)
+# ---------------------------------------------------------------------------- #
+debug: fclean
+	$(CC) $(CFLAGS) -fsanitize=address -o $(NAME)_debug \
+		$(SRCS) -L$(LIBFT_DIR) -lft -L$(MLX_DIR) -lmlx -lm -lXext -lX11
+
+# ---------------------------------------------------------------------------- #
+# RUN VALGRIND MEMORY CHECK (WITH MINILIBX, BUT SUPPRESSED ERRORS)
+# ---------------------------------------------------------------------------- #
+valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
+		--suppressions=$(MLX_DIR)/mlx.supp \
+		--trace-children=no ./$(NAME) maps/test.ber
+
+# ---------------------------------------------------------------------------- #
 # PHONY TARGETS
 # ---------------------------------------------------------------------------- #
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re debug valgrind

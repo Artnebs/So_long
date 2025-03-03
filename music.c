@@ -6,7 +6,7 @@
 /*   By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 10:00:00 by anebbou           #+#    #+#             */
-/*   Updated: 2025/02/28 13:05:17 by anebbou          ###   ########.fr       */
+/*   Updated: 2025/03/03 11:35:52 by anebbou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,10 @@ void	play_background_music(void)
 	system("mpg123 -q --loop -1 " MP3_FILE " &");
 }
 
-void	stop_background_music(void)
+void stop_background_music(void)
 {
 	system("pkill -f mpg123");
+	usleep(1000);
 }
 
 void	toggle_music(t_game *game)
