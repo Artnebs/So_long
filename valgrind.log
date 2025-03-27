@@ -1,0 +1,178 @@
+==87813== Memcheck, a memory error detector
+==87813== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==87813== Using Valgrind-3.22.0-bd4db67b1d-20231031 and LibVEX; rerun with -h for copyright info
+==87813== Command: ./so_long maps/default_map.ber
+==87813== Parent PID: 87812
+==87813== 
+--87813-- 
+--87813-- Valgrind options:
+--87813--    --leak-check=full
+--87813--    --show-leak-kinds=all
+--87813--    --track-origins=yes
+--87813--    --verbose
+--87813--    --log-file=valgrind.log
+--87813-- Contents of /proc/version:
+--87813--   Linux version 6.8.0-55-generic (buildd@lcy02-amd64-095) (x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #57-Ubuntu SMP PREEMPT_DYNAMIC Wed Feb 12 23:42:21 UTC 2025
+--87813-- 
+--87813-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand-rdseed
+--87813-- Page sizes: currently 4096, max supported 4096
+--87813-- Valgrind library directory: /usr/libexec/valgrind
+--87813-- Reading syms from /home/arthur/goinfre/solong_test/so_long
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+--87813--   Considering /usr/lib/debug/.build-id/1c/8db5f83bba514f8fd5f1fb6d7be975be1bb855.debug ..
+--87813--   .. build-id is valid
+--87813-- Reading syms from /usr/libexec/valgrind/memcheck-amd64-linux
+--87813--    object doesn't have a dynamic symbol table
+--87813-- Scheduler: using generic scheduler lock implementation.
+--87813-- Reading suppressions file: /usr/libexec/valgrind/default.supp
+==87813== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-87813-by-arthur-on-???
+==87813== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-87813-by-arthur-on-???
+==87813== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-87813-by-arthur-on-???
+==87813== 
+==87813== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==87813== don't want to do, unless you know exactly what you're doing,
+==87813== or are doing some strange experiment):
+==87813==   /usr/bin/vgdb --pid=87813 ...command...
+==87813== 
+==87813== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==87813==   /path/to/gdb ./so_long
+==87813== and then give GDB the following command
+==87813==   target remote | /usr/bin/vgdb --pid=87813
+==87813== --pid is optional if only one valgrind process is running
+==87813== 
+--87813-- REDIR: 0x4028b00 (ld-linux-x86-64.so.2:strlen) redirected to 0x580c2e1a (???)
+--87813-- REDIR: 0x40272b0 (ld-linux-x86-64.so.2:index) redirected to 0x580c2e34 (???)
+--87813-- Reading syms from /usr/libexec/valgrind/vgpreload_core-amd64-linux.so
+--87813-- Reading syms from /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so
+==87813== WARNING: new redirection conflicts with existing -- ignoring it
+--87813--     old: 0x04028b00 (strlen              ) R-> (0000.0) 0x580c2e1a ???
+--87813--     new: 0x04028b00 (strlen              ) R-> (2007.0) 0x0484f340 strlen
+--87813-- REDIR: 0x40274e0 (ld-linux-x86-64.so.2:strcmp) redirected to 0x4850460 (strcmp)
+--87813-- REDIR: 0x4026910 (ld-linux-x86-64.so.2:mempcpy) redirected to 0x4853cd0 (mempcpy)
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libXext.so.6.4.0
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libc.so.6
+--87813--   Considering /usr/lib/debug/.build-id/42/c84c92e6f98126b3e2230ebfdead22c235b667.debug ..
+--87813--   .. build-id is valid
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libXau.so.6.0.0
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libXdmcp.so.6.0.0
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libbsd.so.0.12.1
+--87813-- Reading syms from /usr/lib/x86_64-linux-gnu/libmd.so.0.1.0
+--87813-- REDIR: 0x4028ca0 (ld-linux-x86-64.so.2:strncmp) redirected to 0x484fc90 (strncmp)
+--87813-- REDIR: 0x4a7a050 (libc.so.6:strnlen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a7a0e0 (libc.so.6:strpbrk) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a781a0 (libc.so.6:strcmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a913b0 (libc.so.6:wcsnlen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a77290 (libc.so.6:memset) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a90b20 (libc.so.6:wcslen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4afc3c0 (libc.so.6:__memcpy_chk) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a77200 (libc.so.6:memrchr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a91350 (libc.so.6:wcsncpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a76720 (libc.so.6:memcpy@@GLIBC_2.14) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a8f8e0 (libc.so.6:wcschr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a78090 (libc.so.6:index) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a7a110 (libc.so.6:rindex) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a8f990 (libc.so.6:wcscmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a774b0 (libc.so.6:stpncpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a9deb0 (libc.so.6:wmemchr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a79ef0 (libc.so.6:strncmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a77510 (libc.so.6:strcasecmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a79310 (libc.so.6:strcspn) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a908f0 (libc.so.6:wcscpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a78020 (libc.so.6:strcat) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a79df0 (libc.so.6:strncasecmp_l) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a78110 (libc.so.6:strchrnul) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a76630 (libc.so.6:bcmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a792a0 (libc.so.6:strcpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a775b0 (libc.so.6:strcasecmp_l) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a79cc0 (libc.so.6:strlen) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a79f90 (libc.so.6:strncpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a9df30 (libc.so.6:wmemcmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4afc4e0 (libc.so.6:__memmove_chk) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+==87813== WARNING: new redirection conflicts with existing -- ignoring it
+--87813--     old: 0x04b4d9d0 (__memcpy_chk_avx_una) R-> (2030.0) 0x04853dd0 __memcpy_chk
+--87813--     new: 0x04b4d9d0 (__memcpy_chk_avx_una) R-> (2024.0) 0x04853740 __memmove_chk
+--87813-- REDIR: 0x4a77440 (libc.so.6:stpcpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a76fc0 (libc.so.6:memmove) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+==87813== Preferring higher priority redirection:
+--87813--     old: 0x04b4da00 (__memcpy_avx_unalign) R-> (2018.0) 0x04851580 __memcpy_avx_unaligned_erms
+--87813--     new: 0x04b4da00 (__memcpy_avx_unalign) R-> (2018.1) 0x04852d60 memmove
+--87813-- REDIR: 0x4a765b0 (libc.so.6:memchr) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a7a2e0 (libc.so.6:strspn) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a770e0 (libc.so.6:mempcpy) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4a79d50 (libc.so.6:strncasecmp) redirected to 0x483d1c0 (_vgnU_ifunc_wrapper)
+--87813-- REDIR: 0x4b525f0 (libc.so.6:__strrchr_avx2) redirected to 0x484ed20 (rindex)
+--87813-- REDIR: 0x4a72650 (libc.so.6:malloc) redirected to 0x48467b0 (malloc)
+--87813-- REDIR: 0x4b50740 (libc.so.6:__strlen_avx2) redirected to 0x484f220 (strlen)
+--87813-- REDIR: 0x4b51820 (libc.so.6:__strncmp_avx2) redirected to 0x484fab0 (strncmp)
+--87813-- REDIR: 0x4a737a0 (libc.so.6:calloc) redirected to 0x484d8a0 (calloc)
+--87813-- REDIR: 0x4b4d9d0 (libc.so.6:__memcpy_chk_avx_unaligned_erms) redirected to 0x4853dd0 (__memcpy_chk)
+--87813-- REDIR: 0x4a72d30 (libc.so.6:free) redirected to 0x4849820 (free)
+--87813-- REDIR: 0x4b4fda0 (libc.so.6:__strchrnul_avx2) redirected to 0x48537b0 (strchrnul)
+--87813-- REDIR: 0x4b4da00 (libc.so.6:__memcpy_avx_unaligned_erms) redirected to 0x4852d60 (memmove)
+--87813-- REDIR: 0x4afcf90 (libc.so.6:__strcpy_chk) redirected to 0x4853830 (__strcpy_chk)
+--87813-- REDIR: 0x4b4fb60 (libc.so.6:__strchr_avx2) redirected to 0x484ef00 (index)
+--87813-- REDIR: 0x4b4d2a0 (libc.so.6:__memcmp_avx2_movbe) redirected to 0x4852480 (bcmp)
+--87813-- REDIR: 0x4b4e400 (libc.so.6:__memset_avx2_unaligned_erms) redirected to 0x4852c50 (memset)
+--87813-- REDIR: 0x4a730a0 (libc.so.6:realloc) redirected to 0x484db00 (realloc)
+--87813-- REDIR: 0x4b51e80 (libc.so.6:__strncpy_avx2) redirected to 0x484f4f0 (strncpy)
+--87813-- REDIR: 0x4b4ff90 (libc.so.6:__strcmp_avx2) redirected to 0x4850360 (strcmp)
+==87813== Syscall param writev(vector[0]) points to uninitialised byte(s)
+==87813==    at 0x4AEE864: writev (writev.c:26)
+==87813==    by 0x4BE5ACA: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==87813==    by 0x4BE5C4E: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==87813==    by 0x4BE6D7E: xcb_writev (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==87813==    by 0x48C90B8: _XSend (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x48CE148: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x48CE52B: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x114895: mlx_int_wait_first_expose (in /home/arthur/goinfre/solong_test/so_long)
+==87813==    by 0x114505: mlx_new_window (in /home/arthur/goinfre/solong_test/so_long)
+==87813==    by 0x110686: init_window (init_window.c:27)
+==87813==    by 0x110794: init_all (main.c:31)
+==87813==    by 0x110842: main (main.c:50)
+==87813==  Address 0x4c431ac is 28 bytes inside a block of size 16,384 alloc'd
+==87813==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==87813==    by 0x48B842D: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x1142B6: mlx_init (in /home/arthur/goinfre/solong_test/so_long)
+==87813==    by 0x110220: init_mlx (init_mlx.c:23)
+==87813==    by 0x110723: init_all (main.c:19)
+==87813==    by 0x110842: main (main.c:50)
+==87813==  Uninitialised value was created by a stack allocation
+==87813==    at 0x1147A0: mlx_int_anti_resize_win (in /home/arthur/goinfre/solong_test/so_long)
+==87813== 
+--87813-- REDIR: 0x4b4ee40 (libc.so.6:__strcasecmp_avx2) redirected to 0x484fcf0 (strcasecmp)
+==87813== 
+==87813== HEAP SUMMARY:
+==87813==     in use at exit: 0 bytes in 0 blocks
+==87813==   total heap usage: 18,925 allocs, 18,925 frees, 2,281,458 bytes allocated
+==87813== 
+==87813== All heap blocks were freed -- no leaks are possible
+==87813== 
+==87813== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+==87813== 
+==87813== 1 errors in context 1 of 1:
+==87813== Syscall param writev(vector[0]) points to uninitialised byte(s)
+==87813==    at 0x4AEE864: writev (writev.c:26)
+==87813==    by 0x4BE5ACA: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==87813==    by 0x4BE5C4E: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==87813==    by 0x4BE6D7E: xcb_writev (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
+==87813==    by 0x48C90B8: _XSend (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x48CE148: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x48CE52B: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x114895: mlx_int_wait_first_expose (in /home/arthur/goinfre/solong_test/so_long)
+==87813==    by 0x114505: mlx_new_window (in /home/arthur/goinfre/solong_test/so_long)
+==87813==    by 0x110686: init_window (init_window.c:27)
+==87813==    by 0x110794: init_all (main.c:31)
+==87813==    by 0x110842: main (main.c:50)
+==87813==  Address 0x4c431ac is 28 bytes inside a block of size 16,384 alloc'd
+==87813==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==87813==    by 0x48B842D: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
+==87813==    by 0x1142B6: mlx_init (in /home/arthur/goinfre/solong_test/so_long)
+==87813==    by 0x110220: init_mlx (init_mlx.c:23)
+==87813==    by 0x110723: init_all (main.c:19)
+==87813==    by 0x110842: main (main.c:50)
+==87813==  Uninitialised value was created by a stack allocation
+==87813==    at 0x1147A0: mlx_int_anti_resize_win (in /home/arthur/goinfre/solong_test/so_long)
+==87813== 
+==87813== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
