@@ -4,22 +4,12 @@
 ==100837== Command: ./so_long ./maps_test_so_long/invalid_char.ber
 ==100837== Parent PID: 100745
 ==100837== 
-==100837== Syscall param writev(vector[0]) points to uninitialised byte(s)
-==100837==    at 0x4AEE864: writev (writev.c:26)
-==100837==    by 0x4BE5ACA: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
-==100837==    by 0x4BE5C4E: ??? (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
-==100837==    by 0x4BE6D7E: xcb_writev (in /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0)
-==100837==    by 0x48C90B8: _XSend (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
-==100837==    by 0x48CE148: _XReadEvents (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
-==100837==    by 0x48CE52B: XWindowEvent (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
 ==100837==    by 0x114895: mlx_int_wait_first_expose (in /home/arthur/Documents/Ecole_42/tronc_commun/CERCLE_2/So_long/So_long/so_long)
 ==100837==    by 0x114505: mlx_new_window (in /home/arthur/Documents/Ecole_42/tronc_commun/CERCLE_2/So_long/So_long/so_long)
 ==100837==    by 0x110686: init_window (init_window.c:27)
 ==100837==    by 0x110794: init_all (main.c:31)
 ==100837==    by 0x110842: main (main.c:50)
 ==100837==  Address 0x4c431ac is 28 bytes inside a block of size 16,384 alloc'd
-==100837==    at 0x484D953: calloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
-==100837==    by 0x48B842D: XOpenDisplay (in /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0)
 ==100837==    by 0x1142B6: mlx_init (in /home/arthur/Documents/Ecole_42/tronc_commun/CERCLE_2/So_long/So_long/so_long)
 ==100837==    by 0x110220: init_mlx (init_mlx.c:23)
 ==100837==    by 0x110723: init_all (main.c:19)

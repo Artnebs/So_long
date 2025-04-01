@@ -6,7 +6,7 @@
 #    By: anebbou <anebbou@student42.fr>             +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/04 10:28:35 by anebbou           #+#    #+#              #
-#    Updated: 2025/03/03 11:36:33 by anebbou          ###   ########.fr        #
+#    Updated: 2025/04/01 09:17:14 by anebbou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -111,14 +111,21 @@ debug: fclean
 		$(SRCS) -L$(LIBFT_DIR) -lft -L$(MLX_DIR) -lmlx -lm -lXext -lX11
 
 # ---------------------------------------------------------------------------- #
-# RUN VALGRIND MEMORY CHECK (WITH MINILIBX, BUT SUPPRESSED ERRORS)
+# RUN VALGRIND MEMORY CHECK (TOUS LES .ber)
 # ---------------------------------------------------------------------------- #
 valgrind: all
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
-		--suppressions=$(MLX_DIR)/mlx.supp \
-		--trace-children=no ./$(NAME) maps/test.ber
+	bash test_so_long_clean.sh
+
+# ---------------------------------------------------------------------------- #
+# FULL PROJECT TEST (MAPS + LEAKS + SUMMARY)
+# ---------------------------------------------------------------------------- #
+test: all
+	bash test_so_long_clean.sh > test_results.txt
+	@echo "\n🔍 Résumé des fuites mémoire :"
+	@grep "definitely lost" logs/*.filtered.log || echo "✅ Aucun problème détecté dans les logs filtrés."
+	@echo "\n📁 Détails complets disponibles dans le dossier 'logs/' et dans test_results.txt."
 
 # ---------------------------------------------------------------------------- #
 # PHONY TARGETS
 # ---------------------------------------------------------------------------- #
-.PHONY: all clean fclean re debug valgrind
+.PHONY: all clean fclean re debug valgrind test
